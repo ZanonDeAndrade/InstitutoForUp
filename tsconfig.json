@@ -1,16 +1,38 @@
 {
-  "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    // Alvo de compilação
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+
+    // Módulos
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // JSX / React
+    "jsx": "react-jsx",
+
+    // Checagens de tipo/libs
     "skipLibCheck": true,
-    "allowJs": true,
+
+    // Regras de lint/strictness
+    "strict": false,
     "noUnusedLocals": false,
-    "strictNullChecks": false
-  }
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
+
+    // Aliases de import (substitui o baseUrl)
+    "paths": {
+      "@/*": ["./lading/src/*"]
+    }
+  },
+
+  // Arquivos considerados pelo TS
+  "include": ["lading/src"],
+  "exclude": ["node_modules", "dist"]
 }

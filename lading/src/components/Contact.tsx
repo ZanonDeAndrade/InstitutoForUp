@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 const Contact = () => {
   return (
     <section id="contato" className="py-20 px-4">
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-6xl">
         <div className="bg-card rounded-2xl shadow-card p-8 md:p-12">
           <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-6 text-gradient-gold">
             Entre em Contato
@@ -17,16 +17,18 @@ const Contact = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <a 
               href="mailto:contato@forupeducation.com.br" 
-              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group"
+              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
             >
               <Mail className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground text-center">E-mail</span>
-              <span className="text-foreground font-medium text-center mt-1">contato@forupeducation.com.br</span>
+              <span className="text-foreground font-medium text-center mt-1 whitespace-normal md:whitespace-nowrap">
+                contato@forupeducation.com.br
+              </span>
             </a>
 
             <a 
               href="tel:+5511999999999" 
-              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group"
+              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
             >
               <Phone className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground">Telefone</span>
@@ -37,7 +39,7 @@ const Contact = () => {
               href="https://wa.me/5511999999999" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group"
+              className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
             >
               <MessageCircle className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground">WhatsApp</span>
