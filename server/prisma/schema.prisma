@@ -12,16 +12,32 @@ model Course {
   name        String
   description String?
   fields      String?
-  images      CourseImage[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  images      CourseImage[]
 }
 
 model CourseImage {
   id         String   @id @default(cuid())
   courseId   String
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   url        String
   storageKey String?
   createdAt  DateTime @default(now())
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model News {
+  id              String    @id @default(cuid())
+  title           String
+  subtitle        String?
+  content         String
+  imageUrl        String?
+  imageStorageKey String?
+  publishedAt     DateTime?
+  slug            String    @unique
+  status          String    @default("published")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, publishedAt])
 }

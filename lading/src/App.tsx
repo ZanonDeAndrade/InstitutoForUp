@@ -12,6 +12,11 @@ import CafeCultural from "./pages/CafeCultural";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import DynamicCourse from "./pages/DynamicCourse";
+import NewsPage from "./pages/NewsPage";
+import NewsDetails from "./pages/NewsDetails";
+import NewsList from "./pages/NewsList";
+import NewsCreate from "./pages/NewsCreate";
+import NewsEdit from "./pages/NewsEdit";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +34,11 @@ const App = () => (
           <Route path="/criatividade-empresarial" element={<CriatividadeEmpresarial />} />
           <Route path="/cafe-cultural" element={<CafeCultural />} />
           <Route path="/curso/:courseId" element={<DynamicCourse />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:slug" element={<NewsDetails />} />
+          <Route path="/admin/news" element={<NewsList />} />
+          <Route path="/admin/news/create" element={<NewsCreate />} />
+          <Route path="/admin/news/:slug/edit" element={<NewsEdit />} />
           <Route path="/admin" element={<AdminPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
