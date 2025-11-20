@@ -3,6 +3,7 @@ import path from "node:path";
 import express from "express";
 import cors from "cors";
 import courseRoutes from "./routes/courseRoutes";
+import newsRoutes from "./routes/newsRoutes";
 import { reqLogger } from "./middleware/reqLogger";
 import { downloadFromStorage } from "./config/storage";
 
@@ -30,6 +31,7 @@ app.get("/api/images/:storageKey(*)", async (req, res) => {
 });
 
 app.use("/api/courses", courseRoutes);
+app.use("/api/news", newsRoutes);
 
 app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error("Internal error:", error);

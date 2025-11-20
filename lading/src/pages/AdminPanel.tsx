@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import CourseLayout from "@/components/CourseLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -304,6 +305,11 @@ const AdminPanel = () => {
             <p className="text-muted-foreground text-lg">
               Acompanhe os interesses registrados em cada curso e gerencie os programas disponíveis.
             </p>
+            <div className="mt-4 flex justify-center">
+              <Button asChild variant="secondary">
+                <Link to="/admin/news">Gerenciar notícias</Link>
+              </Button>
+            </div>
           </div>
 
           <Card className="bg-card shadow-card mb-8">
