@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { leadSourceOptions } from "@/constants/leadSources";
 
 interface CourseFormFieldsConfig {
   name: boolean;
@@ -158,10 +159,11 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
                 <SelectValue placeholder="Selecione uma opção" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="indicacao">Indicação</SelectItem>
-                <SelectItem value="redes-sociais">Redes Sociais</SelectItem>
-                <SelectItem value="evento">Evento</SelectItem>
-                <SelectItem value="outro">Outro</SelectItem>
+                {leadSourceOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

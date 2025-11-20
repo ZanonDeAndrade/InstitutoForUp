@@ -20,6 +20,7 @@ import CourseImagesManager from "@/components/CourseImagesManager";
 import { courseApi } from "@/services/courseApi";
 import { Course, CourseFieldsConfig, CourseImage } from "@/types/course";
 import { toast } from "sonner";
+import { leadSourceLabel } from "@/constants/leadSources";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -532,7 +533,7 @@ const AdminPanel = () => {
                                   <TableCell>{lead.phone}</TableCell>
                                   <TableCell>
                                     <Badge variant="secondary" className="capitalize">
-                                      {lead.source.replace("-", " ")}
+                                      {leadSourceLabel(lead.source)}
                                     </Badge>
                                   </TableCell>
                                   <TableCell>
