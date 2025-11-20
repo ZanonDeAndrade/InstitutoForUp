@@ -7,11 +7,22 @@ interface CourseCardProps {
   title: string;
   description: string;
   link: string;
+  imageUrl?: string;
 }
 
-const CourseCard = ({ title, description, link }: CourseCardProps) => {
+const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => {
   return (
-    <Card className="bg-gradient-card border-border/50 hover:shadow-gold transition-all duration-300 hover:scale-105 group">
+    <Card className="bg-gradient-card border-border/50 hover:shadow-gold transition-all duration-300 hover:scale-105 group overflow-hidden">
+      {imageUrl && (
+        <div className="h-40 w-full overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+      )}
       <CardHeader>
         <CardTitle className="text-2xl font-display text-gradient-gold group-hover:scale-105 transition-transform">
           {title}
