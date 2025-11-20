@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
     email: string;
     phone: string;
     source: string;
+    message?: string;
     course: string;
     submittedAt: string;
   }
@@ -46,6 +48,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
     email: "",
     phone: "",
     source: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,8 +65,14 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
       return;
     }
 
+    if (formData.message && formData.message.length > 500) {
+      toast.error("A mensagem pode ter no máximo 500 caracteres.");
+      return;
+    }
+
     const newLead: Lead = {
       ...formData,
+      message: formData.message?.trim() || undefined,
       course: courseName,
       submittedAt: new Date().toISOString(),
     };
@@ -84,7 +93,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
 
     toast.success("Interesse registrado com sucesso! Entraremos em contato em breve.");
 
-    setFormData({ name: "", email: "", phone: "", source: "" });
+    setFormData({ name: "", email: "", phone: "", source: "", message: "" });
   };
 
   return (
@@ -144,6 +153,24 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
             />
           </div>
         )}
+
+        <div>
+          <Label htmlFor="message" className="text-foreground">
+            Dúvidas (opcional)
+          </Label>
+          <Textarea
+            id="message"
+            value={formData.message}
+            maxLength={500}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="mt-2 bg-secondary border-border text-foreground"
+            placeholder="Escreva suas dúvidas ou observações (até 500 caracteres)"
+            aria-describedby="message-help"
+          />
+          <p id="message-help" className="text-xs text-muted-foreground mt-1">
+            Campo opcional. Máximo de 500 caracteres.
+          </p>
+        </div>
 
         {effectiveFields.source && (
           <div>
