@@ -99,7 +99,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
   return (
     <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 max-w-2xl mx-auto">
       <h3 className="text-2xl font-display font-bold text-center mb-6 text-gradient-gold">
-        Quero Participar
+        Tenho Interesse
       </h3>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -197,7 +197,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
         )}
 
         <Button type="submit" variant="hero" size="lg" className="w-full">
-          Quero participar
+          Tenho Interesse
         </Button>
       </form>
     </div>
