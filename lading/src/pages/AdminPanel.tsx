@@ -21,6 +21,7 @@ import { courseApi } from "@/services/courseApi";
 import { Course, CourseFieldsConfig, CourseImage } from "@/types/course";
 import { toast } from "sonner";
 import { leadSourceLabel } from "@/constants/leadSources";
+import EllipsisText from "@/components/EllipsisText";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,7 @@ interface Lead {
   email: string;
   phone: string;
   source: string;
+  message?: string;
   course: string;
   submittedAt: string;
 }
@@ -522,12 +524,13 @@ const AdminPanel = () => {
                                 <TableHead>E-mail</TableHead>
                                 <TableHead>Telefone</TableHead>
                                 <TableHead>Origem</TableHead>
-                                <TableHead>Data</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {courseLeads.map((lead, index) => (
-                                <TableRow key={`${lead.email}-${lead.submittedAt}-${index}`}>
+                              <TableHead>Data</TableHead>
+                              <TableHead>Dúvidas</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {courseLeads.map((lead, index) => (
+                              <TableRow key={`${lead.email}-${lead.submittedAt}-${index}`}>
                                   <TableCell className="font-medium">{lead.name}</TableCell>
                                   <TableCell>{lead.email}</TableCell>
                                   <TableCell>{lead.phone}</TableCell>
@@ -538,6 +541,13 @@ const AdminPanel = () => {
                                   </TableCell>
                                   <TableCell>
                                     {new Date(lead.submittedAt).toLocaleString("pt-BR")}
+                                  </TableCell>
+                                  <TableCell className="max-w-[220px]">
+                                    {lead.message ? (
+                                      <EllipsisText text={lead.message} maxLength={60} />
+                                    ) : (
+                                      <span className="text-xs text-muted-foreground">—</span>
+                                    )}
                                   </TableCell>
                                 </TableRow>
                               ))}
