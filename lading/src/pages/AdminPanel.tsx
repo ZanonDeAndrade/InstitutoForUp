@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CourseLayout from "@/components/CourseLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import CourseImagesManager from "@/components/CourseImagesManager";
+import { courseApi } from "@/services/courseApi";
+import { Course, CourseFieldsConfig, CourseImage } from "@/types/course";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,20 +39,6 @@ interface Lead {
   submittedAt: string;
 }
 
-interface CourseFieldsConfig {
-  name: boolean;
-  email: boolean;
-  phone: boolean;
-  source: boolean;
-}
-
-interface CourseConfig {
-  id: string;
-  name: string;
-  description: string;
-  fields: CourseFieldsConfig;
-}
-
 const defaultFields: CourseFieldsConfig = {
   name: true,
   email: true,
@@ -56,30 +46,34 @@ const defaultFields: CourseFieldsConfig = {
   source: true,
 };
 
-const defaultCourses: CourseConfig[] = [
+const defaultCourses: Course[] = [
   {
     id: "criterios-valores",
     name: "Critérios e Valores Humanos",
     description: "",
     fields: { ...defaultFields },
+    images: [],
   },
   {
     id: "performando-liderancas",
     name: "Performando Lideranças",
     description: "",
     fields: { ...defaultFields },
+    images: [],
   },
   {
     id: "jovens-lideres",
     name: "Jovens Líderes",
     description: "",
     fields: { ...defaultFields },
+    images: [],
   },
   {
     id: "criatividade-empresarial",
     name: "Criatividade Empresarial",
     description: "",
     fields: { ...defaultFields },
+    images: [],
   },
 ];
 
@@ -87,7 +81,8 @@ const COURSES_STORAGE_KEY = "forup_courses";
 
 const AdminPanel = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [courses, setCourses] = useState<CourseConfig[]>(() => defaultCourses);
+  const [courses, setCourses] = useState<Course[]>(() => defaultCourses);
+  const [loadingCourses, setLoadingCourses] = useState(true);
   const [newCourseName, setNewCourseName] = useState("");
   const [newCourseDescription, setNewCourseDescription] = useState("");
   const [newCourseFields] = useState<CourseFieldsConfig>({
@@ -97,29 +92,72 @@ const AdminPanel = () => {
     source: true,
   });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [newCourseFiles, setNewCourseFiles] = useState<File[]>([]);
+  const [isSavingCourse, setIsSavingCourse] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [courseToDelete, setCourseToDelete] = useState<CourseConfig | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+
+  const newCoursePreviews = useMemo(
+    () => newCourseFiles.map((file) => ({ url: URL.createObjectURL(file), name: file.name })),
+    [newCourseFiles],
+  );
+
+  const slugify = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "") || `course-${Date.now()}`;
 
   useEffect(() => {
     try {
       const stored = typeof window !== "undefined" ? window.localStorage.getItem("forup_leads") : null;
       const parsed: Lead[] = stored ? JSON.parse(stored) : [];
       setLeads(parsed);
+      console.log("[admin] leads loaded", parsed.length);
     } catch (error) {
       console.error("Erro ao carregar leads salvos", error);
     }
   }, []);
 
   useEffect(() => {
-    try {
-      const stored = typeof window !== "undefined" ? window.localStorage.getItem(COURSES_STORAGE_KEY) : null;
-      const parsed: CourseConfig[] = stored ? JSON.parse(stored) : [];
-      if (parsed && parsed.length > 0) {
-        setCourses(parsed);
+    const loadCourses = async () => {
+      try {
+        setLoadingCourses(true);
+        const remote = await courseApi.list();
+        if (remote && remote.length > 0) {
+          console.log("[admin] remote courses", remote);
+          setCourses((prev) => {
+            const map = new Map<string, Course>();
+            defaultCourses.forEach((c) => map.set(c.id, { ...c }));
+            remote.forEach((c) => map.set(c.id, { ...map.get(c.id), ...c, images: c.images ?? [] }));
+            return Array.from(map.values());
+          });
+          return;
+        }
+      } catch (error) {
+        console.warn("Falha ao carregar cursos do backend, usando fallback local.", error);
+      } finally {
+        setLoadingCourses(false);
       }
-    } catch (error) {
-      console.error("Erro ao carregar cursos salvos", error);
-    }
+
+      try {
+        const stored =
+          typeof window !== "undefined" ? window.localStorage.getItem(COURSES_STORAGE_KEY) : null;
+        const parsed: Course[] = stored ? JSON.parse(stored) : [];
+        console.log("[admin] stored courses", parsed);
+        const map = new Map<string, Course>();
+        defaultCourses.forEach((c) => map.set(c.id, { ...c }));
+        parsed.forEach((c) => map.set(c.id, { ...map.get(c.id), ...c, images: c.images ?? [] }));
+        setCourses(Array.from(map.values()));
+      } catch (error) {
+        console.error("Erro ao carregar cursos salvos", error);
+      }
+    };
+
+    loadCourses();
   }, []);
 
   useEffect(() => {
@@ -131,53 +169,95 @@ const AdminPanel = () => {
     }
   }, [courses]);
 
-  const handleSaveCourse = (event: React.FormEvent) => {
+  const handleSaveCourse = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const trimmedName = newCourseName.trim();
     if (!trimmedName) {
+      toast.error("Informe o nome do curso.");
       return;
     }
 
     const description = newCourseDescription.trim();
 
-    if (editingCourseId) {
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === editingCourseId ? { ...course, name: trimmedName, description } : course,
-        ),
-      );
-    } else {
-      const id = `course-${Date.now()}`;
+    setIsSavingCourse(true);
 
-      const course: CourseConfig = {
-        id,
-        name: trimmedName,
-        description,
-        fields: { ...newCourseFields },
-      };
+    try {
+      if (editingCourseId) {
+        const updated = await courseApi.update(editingCourseId, {
+          id: editingCourseId,
+          name: trimmedName,
+          description,
+          fields: newCourseFields,
+        });
+        setCourses((prev) => prev.map((course) => (course.id === editingCourseId ? updated : course)));
+        toast.success("Curso atualizado.");
+      } else {
+        const slug = slugify(trimmedName);
+        const created = await courseApi.create({
+          id: slug,
+          name: trimmedName,
+          description,
+          fields: newCourseFields,
+        });
 
-      setCourses((prev) => [...prev, course]);
+        let images: CourseImage[] = [];
+        if (newCourseFiles.length > 0) {
+          images = await courseApi.uploadImages(created.id, newCourseFiles);
+        }
+
+        const newCourse: Course = {
+          ...created,
+          images: images.length ? images : created.images ?? [],
+          fields: created.fields ?? newCourseFields,
+        };
+
+        setCourses((prev) => [...prev, newCourse]);
+        toast.success("Curso cadastrado.");
+      }
+
+      setNewCourseName("");
+      setNewCourseDescription("");
+      setEditingCourseId(null);
+      setNewCourseFiles([]);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao salvar o curso.");
+    } finally {
+      setIsSavingCourse(false);
     }
-
-    setNewCourseName("");
-    setNewCourseDescription("");
-    setEditingCourseId(null);
   };
 
-  const handleEditCourse = (course: CourseConfig) => {
+  const handleEditCourse = (course: Course) => {
     setEditingCourseId(course.id);
     setNewCourseName(course.name);
-    setNewCourseDescription(course.description);
+    setNewCourseDescription(course.description ?? "");
+  };
+
+  const handleSelectNewCourseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+
+    const invalid = files.find(
+      (file) =>
+        file.size > 2 * 1024 * 1024 ||
+        !["image/png", "image/jpeg", "image/webp"].includes(file.type),
+    );
+    if (invalid) {
+      toast.error("Use PNG/JPG/WebP até 2MB.");
+      return;
+    }
+    setNewCourseFiles(files);
   };
 
   const handleCancelEdit = () => {
     setEditingCourseId(null);
     setNewCourseName("");
     setNewCourseDescription("");
+    setNewCourseFiles([]);
   };
 
-  const handleAskDeleteCourse = (course: CourseConfig) => {
+  const handleAskDeleteCourse = (course: Course) => {
     setCourseToDelete(course);
     setDeleteDialogOpen(true);
   };
@@ -186,7 +266,18 @@ const AdminPanel = () => {
     if (!courseToDelete) return;
 
     const course = courseToDelete;
-    setCourses((prev) => prev.filter((item) => item.id !== course.id));
+    courseApi
+      .delete(course.id)
+      .then(() => {
+        setCourses((prev) => prev.filter((item) => item.id !== course.id));
+        const remaining = courses.filter((item) => item.id !== course.id);
+        window.localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(remaining));
+        toast.success("Curso excluído.");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Erro ao excluir curso.");
+      });
 
     if (editingCourseId === course.id) {
       setEditingCourseId(null);
@@ -196,6 +287,10 @@ const AdminPanel = () => {
 
     setDeleteDialogOpen(false);
     setCourseToDelete(null);
+  };
+
+  const handleImagesChange = (courseId: string, images: CourseImage[]) => {
+    setCourses((prev) => prev.map((course) => (course.id === courseId ? { ...course, images } : course)));
   };
 
   return (
@@ -243,14 +338,48 @@ const AdminPanel = () => {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="course-images">
+                    Fotos do curso (PNG/JPG/WebP, até 2MB)
+                  </Label>
+                  <Input
+                    id="course-images"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    multiple
+                    onChange={handleSelectNewCourseFiles}
+                    className="bg-secondary border-border text-foreground"
+                  />
+                  {newCoursePreviews.length > 0 && (
+                    <div className="flex flex-wrap gap-3">
+                      {newCoursePreviews.map((preview) => (
+                        <div
+                          key={preview.url}
+                          className="relative h-20 w-28 overflow-hidden rounded-lg border border-border/60"
+                        >
+                          <img
+                            src={preview.url}
+                            alt={preview.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-end gap-2">
                   {editingCourseId && (
                     <Button type="button" variant="outline" onClick={handleCancelEdit}>
                       Cancelar
                     </Button>
                   )}
-                  <Button type="submit" variant="hero">
-                    {editingCourseId ? "Salvar alterações" : "Salvar curso"}
+                  <Button type="submit" variant="hero" disabled={isSavingCourse}>
+                    {isSavingCourse
+                      ? "Salvando..."
+                      : editingCourseId
+                        ? "Salvar alterações"
+                        : "Salvar curso"}
                   </Button>
                 </div>
               </form>
@@ -258,20 +387,28 @@ const AdminPanel = () => {
               {courses.length > 0 && (
                 <div className="mt-8 space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">Cursos cadastrados</h3>
+                  {loadingCourses && (
+                    <p className="text-sm text-muted-foreground">Carregando cursos...</p>
+                  )}
                   {courses.map((course) => (
                     <div
                       key={course.id}
-                      className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-lg border border-border/60 bg-secondary/20 px-4 py-3"
+                      className="flex flex-col gap-4 rounded-lg border border-border/60 bg-secondary/20 px-4 py-4"
                     >
-                      <div>
+                      <div className="space-y-2">
                         <p className="font-medium text-foreground">{course.name}</p>
                         {course.description && (
                           <p className="text-sm text-muted-foreground mt-1">
                             {course.description}
                           </p>
                         )}
+                        <CourseImagesManager
+                          courseId={course.id}
+                          images={course.images ?? []}
+                          onImagesChange={(images) => handleImagesChange(course.id, images)}
+                        />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 self-end md:self-auto">
                         <Button
                           type="button"
                           variant="outline"
