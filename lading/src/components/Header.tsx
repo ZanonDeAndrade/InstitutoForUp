@@ -10,8 +10,8 @@ import {
 const Header = () => {
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/news", label: "Notícias" },
     { to: "/#cursos", label: "Cursos" },
+    { to: "/news", label: "Notícias" },
     { to: "/#contato", label: "Contato" },
   ];
 
