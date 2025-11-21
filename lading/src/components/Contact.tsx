@@ -1,5 +1,5 @@
 import { Mail, Phone, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Contact = () => {
   return (
@@ -27,16 +27,16 @@ const Contact = () => {
             </a>
 
             <a 
-              href="tel:+5511999999999" 
+              href="tel:+5511976747650" 
               className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
             >
               <Phone className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground">Telefone</span>
-              <span className="text-foreground font-medium mt-1">(11) 99999-9999</span>
+              <span className="text-foreground font-medium mt-1">(11) 97674-7650</span>
             </a>
 
             <a 
-              href="https://wa.me/5511999999999" 
+              href="https://wa.me/5511976747650" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
@@ -48,14 +48,7 @@ const Contact = () => {
           </div>
 
           <div className="flex justify-center">
-            <Button 
-              variant="hero" 
-              size="lg"
-              onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
-            >
-              <MessageCircle className="mr-2" />
-              Falar no WhatsApp
-            </Button>
+            <WhatsAppButton variant="hero" size="lg" label="Falar no WhatsApp" />
           </div>
         </div>
       </div>
