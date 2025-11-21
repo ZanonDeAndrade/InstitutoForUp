@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
 import CourseImageCarousel from "@/components/CourseImageCarousel";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { courseApi } from "@/services/courseApi";
 import { Course } from "@/types/course";
 
@@ -100,6 +101,10 @@ const DynamicCourse = () => {
               </p>
             </div>
           )}
+
+          <div className="flex justify-center mb-10 animate-fade-in">
+            <WhatsAppButton courseName={course.name} variant="hero" label="Falar no WhatsApp" />
+          </div>
 
           <div className="animate-slide-up">
             <CourseForm courseName={course.name} fields={course.fields ?? fallbackFields} />

@@ -22,6 +22,7 @@ import { Course, CourseFieldsConfig, CourseImage } from "@/types/course";
 import { toast } from "sonner";
 import { leadSourceLabel } from "@/constants/leadSources";
 import EllipsisText from "@/components/EllipsisText";
+import axios from "axios";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,42 +51,9 @@ const defaultFields: CourseFieldsConfig = {
   source: true,
 };
 
-const defaultCourses: Course[] = [
-  {
-    id: "criterios-valores",
-    name: "Critérios e Valores Humanos",
-    description: "",
-    fields: { ...defaultFields },
-    images: [],
-  },
-  {
-    id: "performando-liderancas",
-    name: "Performando Lideranças",
-    description: "",
-    fields: { ...defaultFields },
-    images: [],
-  },
-  {
-    id: "jovens-lideres",
-    name: "Jovens Líderes",
-    description: "",
-    fields: { ...defaultFields },
-    images: [],
-  },
-  {
-    id: "criatividade-empresarial",
-    name: "Criatividade Empresarial",
-    description: "",
-    fields: { ...defaultFields },
-    images: [],
-  },
-];
-
-const COURSES_STORAGE_KEY = "forup_courses";
-
 const AdminPanel = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [courses, setCourses] = useState<Course[]>(() => defaultCourses);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [newCourseName, setNewCourseName] = useState("");
   const [newCourseDescription, setNewCourseDescription] = useState("");
@@ -127,51 +95,28 @@ const AdminPanel = () => {
   }, []);
 
   useEffect(() => {
+    const normalizeCourse = (course: Course): Course => ({
+      ...course,
+      images: course.images ?? [],
+      fields: (course.fields as CourseFieldsConfig | undefined) ?? defaultFields,
+    });
+
     const loadCourses = async () => {
       try {
         setLoadingCourses(true);
         const remote = await courseApi.list();
-        if (remote && remote.length > 0) {
-          console.log("[admin] remote courses", remote);
-          setCourses((prev) => {
-            const map = new Map<string, Course>();
-            defaultCourses.forEach((c) => map.set(c.id, { ...c }));
-            remote.forEach((c) => map.set(c.id, { ...map.get(c.id), ...c, images: c.images ?? [] }));
-            return Array.from(map.values());
-          });
-          return;
-        }
+        console.log("[admin] remote courses", remote);
+        setCourses(remote.map(normalizeCourse));
       } catch (error) {
-        console.warn("Falha ao carregar cursos do backend, usando fallback local.", error);
+        console.warn("Falha ao carregar cursos do backend.", error);
+        setCourses([]);
       } finally {
         setLoadingCourses(false);
-      }
-
-      try {
-        const stored =
-          typeof window !== "undefined" ? window.localStorage.getItem(COURSES_STORAGE_KEY) : null;
-        const parsed: Course[] = stored ? JSON.parse(stored) : [];
-        console.log("[admin] stored courses", parsed);
-        const map = new Map<string, Course>();
-        defaultCourses.forEach((c) => map.set(c.id, { ...c }));
-        parsed.forEach((c) => map.set(c.id, { ...map.get(c.id), ...c, images: c.images ?? [] }));
-        setCourses(Array.from(map.values()));
-      } catch (error) {
-        console.error("Erro ao carregar cursos salvos", error);
       }
     };
 
     loadCourses();
   }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(courses));
-    } catch (error) {
-      console.error("Erro ao salvar cursos", error);
-    }
-  }, [courses]);
 
   const handleSaveCourse = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -266,22 +211,25 @@ const AdminPanel = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDeleteCourse = () => {
+  const handleConfirmDeleteCourse = async () => {
     if (!courseToDelete) return;
 
     const course = courseToDelete;
-    courseApi
-      .delete(course.id)
-      .then(() => {
+    try {
+      await courseApi.delete(course.id);
+      setCourses((prev) => prev.filter((item) => item.id !== course.id));
+      toast.success("Curso excluído.");
+    } catch (err) {
+      console.error(err);
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        // Backend não achou o curso, mas removemos do painel/local para manter consistência.
         setCourses((prev) => prev.filter((item) => item.id !== course.id));
-        const remaining = courses.filter((item) => item.id !== course.id);
-        window.localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(remaining));
-        toast.success("Curso excluído.");
-      })
-      .catch((err) => {
-        console.error(err);
+        toast.success("Curso removido do painel (já não estava no servidor).");
+      } else {
         toast.error("Erro ao excluir curso.");
-      });
+        return;
+      }
+    }
 
     if (editingCourseId === course.id) {
       setEditingCourseId(null);

@@ -1,5 +1,6 @@
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const CriteriosValores = () => {
   return (
@@ -20,6 +21,10 @@ const CriteriosValores = () => {
               Um programa que busca resgatar a essência dos valores que guiam a ação humana e sustentam decisões éticas e conscientes. 
               Ideal para quem deseja alinhar propósito e resultados.
             </p>
+          </div>
+
+          <div className="flex justify-center mb-10 animate-fade-in">
+            <WhatsAppButton courseName="Critérios e Valores Humanos" variant="hero" label="Falar no WhatsApp" />
           </div>
 
           {/* Form */}
