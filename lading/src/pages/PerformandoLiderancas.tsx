@@ -1,5 +1,6 @@
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const PerformandoLiderancas = () => {
   return (
@@ -20,6 +21,10 @@ const PerformandoLiderancas = () => {
               Desenvolva as competências essenciais para liderar pessoas e projetos com autenticidade, clareza e impacto. 
               Um percurso prático para quem quer transformar potencial em realização.
             </p>
+          </div>
+
+          <div className="flex justify-center mb-10 animate-fade-in">
+            <WhatsAppButton courseName="Performando Lideranças" variant="hero" label="Falar no WhatsApp" />
           </div>
 
           {/* Form */}

@@ -1,5 +1,6 @@
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const JovensLideres = () => {
   return (
@@ -19,6 +20,10 @@ const JovensLideres = () => {
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center">
               Voltado a jovens que desejam descobrir seu papel no mundo e desenvolver liderança com base em valores humanos e responsabilidade social.
             </p>
+          </div>
+
+          <div className="flex justify-center mb-10 animate-fade-in">
+            <WhatsAppButton courseName="Jovens Líderes" variant="hero" label="Falar no WhatsApp" />
           </div>
 
           {/* Form */}

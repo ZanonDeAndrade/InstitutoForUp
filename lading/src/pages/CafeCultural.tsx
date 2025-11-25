@@ -1,10 +1,8 @@
 import CourseLayout from "@/components/CourseLayout";
-import { Button } from "@/components/ui/button";
 import { MessageCircle, Users, Calendar } from "lucide-react";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const CafeCultural = () => {
-  const whatsappLink = "https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20participar%20do%20Café%20Cultural";
-
   return (
     <CourseLayout>
       <div className="container mx-auto px-4 py-20">
@@ -60,21 +58,13 @@ const CafeCultural = () => {
               Entre no grupo do WhatsApp e receba informações sobre os próximos encontros e materiais exclusivos
             </p>
             
-            <Button 
-              variant="hero" 
+            <WhatsAppButton
+              courseName="Café Cultural"
+              variant="hero"
               size="lg"
+              label="Participar do Próximo Encontro"
               className="text-lg px-10 py-6 h-auto"
-              onClick={() => {
-                window.open(whatsappLink, '_blank');
-                // Mostrar mensagem após o clique
-                setTimeout(() => {
-                  alert("Você será redirecionado para o grupo oficial do Café Cultural e receberá os materiais do próximo encontro.");
-                }, 100);
-              }}
-            >
-              <MessageCircle className="mr-2 w-6 h-6" />
-              Participar do Próximo Encontro
-            </Button>
+            />
 
             <p className="text-sm text-muted-foreground mt-6">
               Ao clicar, você será redirecionado para o WhatsApp

@@ -15,6 +15,7 @@ type CarouselProps = {
   plugins?: CarouselPlugin;
   orientation?: "horizontal" | "vertical";
   setApi?: (api: CarouselApi) => void;
+  autoHeight?: boolean;
 };
 
 type CarouselContextProps = {
@@ -39,25 +40,49 @@ function useCarousel() {
 }
 
 const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & CarouselProps>(
-  ({ orientation = "horizontal", opts, setApi, plugins, className, children, ...props }, ref) => {
-    const [carouselRef, api] = useEmblaCarousel(
+  ({ orientation = "horizontal", opts, setApi, plugins, autoHeight = false, className, children, ...props }, ref) => {
+    const [emblaRef, api] = useEmblaCarousel(
       {
         ...opts,
         axis: orientation === "horizontal" ? "x" : "y",
       },
       plugins,
     );
+    const viewportRef = React.useRef<HTMLDivElement | null>(null);
+    const carouselRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        viewportRef.current = node;
+        emblaRef(node);
+      },
+      [emblaRef],
+    );
     const [canScrollPrev, setCanScrollPrev] = React.useState(false);
     const [canScrollNext, setCanScrollNext] = React.useState(false);
 
-    const onSelect = React.useCallback((api: CarouselApi) => {
-      if (!api) {
-        return;
-      }
+    const updateHeight = React.useCallback(
+      (emblaApi: CarouselApi | null) => {
+        if (!autoHeight || !emblaApi || !viewportRef.current) return;
+        const selectedIndex = emblaApi.selectedScrollSnap();
+        const slideNode = emblaApi.slideNodes()[selectedIndex];
+        if (slideNode) {
+          viewportRef.current.style.height = `${slideNode.offsetHeight}px`;
+        }
+      },
+      [autoHeight],
+    );
 
-      setCanScrollPrev(api.canScrollPrev());
-      setCanScrollNext(api.canScrollNext());
-    }, []);
+    const onSelect = React.useCallback(
+      (emblaApi: CarouselApi) => {
+        if (!emblaApi) {
+          return;
+        }
+
+        setCanScrollPrev(emblaApi.canScrollPrev());
+        setCanScrollNext(emblaApi.canScrollNext());
+        updateHeight(emblaApi);
+      },
+      [updateHeight],
+    );
 
     const scrollPrev = React.useCallback(() => {
       api?.scrollPrev();
@@ -96,11 +121,12 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
       onSelect(api);
       api.on("reInit", onSelect);
       api.on("select", onSelect);
+      updateHeight(api);
 
       return () => {
         api?.off("select", onSelect);
       };
-    }, [api, onSelect]);
+    }, [api, onSelect, updateHeight]);
 
     return (
       <CarouselContext.Provider
