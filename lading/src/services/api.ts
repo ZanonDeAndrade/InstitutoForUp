@@ -1,7 +1,9 @@
 import axios from "axios";
 
-const defaultBaseUrl = import.meta.env.DEV ? "http://localhost:4010/api" : "http://143.198.4.218/api";
-const baseURL = import.meta.env.VITE_API_URL?.trim() || defaultBaseUrl;
+// Prefer the env var; fall back to sensible defaults per environment.
+const baseURL =
+  import.meta.env.VITE_API_URL?.trim() ||
+  (import.meta.env.DEV ? "http://localhost:4010/api" : "http://143.198.4.218:4010/api");
 
 const api = axios.create({
   baseURL,
