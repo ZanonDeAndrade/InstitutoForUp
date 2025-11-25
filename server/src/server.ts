@@ -10,16 +10,21 @@ import { downloadFromStorage } from "./config/storage";
 const app = express();
 const port = process.env.PORT || 4010;
 
+const isProd = process.env.NODE_ENV === "production";
+
+// Recupera a lista de origens permitidas a partir das variáveis de ambiente
 const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Configurações CORS
 app.use(
   cors(
-    allowedOrigins.length
+    isProd && allowedOrigins.length
       ? {
           origin: (origin, callback) => {
+            // Permite apenas as origens configuradas em produção
             if (!origin || allowedOrigins.includes(origin)) {
               return callback(null, true);
             }
@@ -27,9 +32,14 @@ app.use(
           },
           credentials: true,
         }
-      : { origin: true },
+      : {
+          // Em desenvolvimento, libera tudo para facilitar testes locais
+          origin: true,
+          credentials: true,
+        },
   ),
 );
+
 app.use(reqLogger);
 app.use(express.json({ limit: "5mb" }));
 
@@ -52,11 +62,13 @@ app.get("/api/images/:storageKey(*)", async (req, res) => {
 app.use("/api/courses", courseRoutes);
 app.use("/api/news", newsRoutes);
 
+// Tratamento de erro geral
 app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error("Internal error:", error);
   return res.status(500).json({ message: "Erro interno", details: error.message });
 });
 
+// Inicialização do servidor
 app.listen(port, () => {
   console.log(`ForUp API running on port ${port}`);
 });
