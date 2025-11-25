@@ -8,9 +8,28 @@ import { reqLogger } from "./middleware/reqLogger";
 import { downloadFromStorage } from "./config/storage";
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4010;
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors(
+    allowedOrigins.length
+      ? {
+          origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+              return callback(null, true);
+            }
+            return callback(new Error("Not allowed by CORS"));
+          },
+          credentials: true,
+        }
+      : { origin: true },
+  ),
+);
 app.use(reqLogger);
 app.use(express.json({ limit: "5mb" }));
 
