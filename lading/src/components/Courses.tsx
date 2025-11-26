@@ -18,6 +18,15 @@ const FRIENDLY_COURSE_ROUTES: Record<string, string> = {
   "cafe-cultural": "/cafe-cultural",
 };
 
+const FALLBACK_COURSES: LandingCourse[] = [
+  {
+    title: "Café Cultural",
+    description:
+      "O Café Cultural é um grupo de estudos com encontros realizados mensalmente, dedicados a mergulhar na história da inteligência humana. Nosso objetivo é analisar e debater personalidades e assuntos que representam o auge da inovação e do conhecimento.",
+    link: "/cafe-cultural",
+  },
+];
+
 const Courses = () => {
   const [courses, setCourses] = useState<LandingCourse[]>([]);
 
@@ -32,14 +41,22 @@ const Courses = () => {
     const load = async () => {
       try {
         const remote = await courseApi.list();
-        setCourses(remote.map(toLandingCourse));
+        const merged = mergeWithFallback(remote.map(toLandingCourse));
+        setCourses(merged);
       } catch (error) {
         console.warn("Falha ao carregar cursos do backend.", error);
-        setCourses([]);
+        setCourses(mergeWithFallback([]));
       }
     };
     load();
   }, []);
+
+  const mergeWithFallback = (remote: LandingCourse[]) => {
+    const map = new Map<string, LandingCourse>();
+    FALLBACK_COURSES.forEach((course) => map.set(course.link, course));
+    remote.forEach((course) => map.set(course.link, course));
+    return Array.from(map.values());
+  };
 
   return (
     <section id="cursos" className="py-20 px-4">
