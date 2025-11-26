@@ -16,11 +16,11 @@ const NewsCreate = () => {
     try {
       setSubmitting(true);
       const created = await newsApi.create(payload);
-      toast.success("Notícia criada com sucesso.");
+      toast.success("Post criado com sucesso.");
       navigate(`/admin/news/${created.slug}/edit`);
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao criar a notícia.");
+      toast.error("Erro ao criar o post.");
     } finally {
       setSubmitting(false);
     }
@@ -32,7 +32,7 @@ const NewsCreate = () => {
         <Card className="bg-card shadow-card">
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle className="text-2xl font-display text-foreground">Criar notícia</CardTitle>
+              <CardTitle className="text-2xl font-display text-foreground">Criar post</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Cadastre conteúdos que aparecerão na landing page.
               </p>
@@ -42,7 +42,7 @@ const NewsCreate = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <NewsForm submitting={submitting} onSubmit={handleSubmit} submitLabel="Publicar notícia" />
+            <NewsForm submitting={submitting} onSubmit={handleSubmit} submitLabel="Publicar post" />
           </CardContent>
         </Card>
       </div>

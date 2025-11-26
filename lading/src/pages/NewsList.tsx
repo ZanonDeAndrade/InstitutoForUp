@@ -28,7 +28,7 @@ const NewsList = () => {
       setItems(response.items);
     } catch (error) {
       console.error(error);
-      toast.error("Não foi possível carregar as notícias.");
+      toast.error("Não foi possível carregar os posts do blog.");
     } finally {
       setLoading(false);
     }
@@ -43,10 +43,10 @@ const NewsList = () => {
     try {
       await newsApi.delete(id);
       setItems((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Notícia excluída.");
+      toast.success("Post excluído.");
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao excluir notícia.");
+      toast.error("Erro ao excluir post.");
     } finally {
       setDeletingId(null);
     }
@@ -58,7 +58,7 @@ const NewsList = () => {
         <Card className="bg-card shadow-card">
           <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle className="text-2xl font-display text-foreground">Notícias</CardTitle>
+              <CardTitle className="text-2xl font-display text-foreground">Blog</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Gerencie publicações da landing page (draft ou publicadas).
               </p>
@@ -68,7 +68,7 @@ const NewsList = () => {
                 <Link to="/admin">Voltar ao painel</Link>
               </Button>
               <Button asChild variant="hero">
-                <Link to="/admin/news/create">Criar notícia</Link>
+                <Link to="/admin/news/create">Criar post</Link>
               </Button>
             </div>
           </CardHeader>
@@ -117,8 +117,8 @@ const NewsList = () => {
                     </TableRow>
                   ))}
                 </TableBody>
-                {!items.length && !loading && <TableCaption>Nenhuma notícia cadastrada.</TableCaption>}
-                {loading && <TableCaption>Carregando notícias...</TableCaption>}
+                {!items.length && !loading && <TableCaption>Nenhum post cadastrado.</TableCaption>}
+                {loading && <TableCaption>Carregando posts...</TableCaption>}
               </Table>
             </div>
           </CardContent>

@@ -319,7 +319,7 @@ const AdminPanel = () => {
             </p>
             <div className="mt-4 flex justify-center">
               <Button asChild variant="secondary">
-                <Link to="/admin/news">Gerenciar notícias</Link>
+                <Link to="/admin/news">Gerenciar blog</Link>
               </Button>
             </div>
           </div>

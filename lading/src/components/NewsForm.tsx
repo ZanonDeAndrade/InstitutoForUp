@@ -22,7 +22,7 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "") || `news-${Date.now()}`;
 
-const NewsForm = ({ initial, submitting, submitLabel = "Salvar notícia", onSubmit }: NewsFormProps) => {
+const NewsForm = ({ initial, submitting, submitLabel = "Salvar post", onSubmit }: NewsFormProps) => {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
@@ -67,11 +67,11 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar notícia", onSubm
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!title.trim()) {
-      toast.error("Informe o título da notícia.");
+      toast.error("Informe o título do post.");
       return;
     }
     if (!content.trim()) {
-      toast.error("Adicione o conteúdo ou resumo da notícia.");
+      toast.error("Adicione o conteúdo ou resumo do post.");
       return;
     }
 
@@ -94,7 +94,7 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar notícia", onSubm
           <Input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Título da notícia"
+            placeholder="Título do post"
             className="bg-secondary border-border"
           />
         </div>
@@ -118,7 +118,7 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar notícia", onSubm
           <Input
             value={subtitle}
             onChange={(event) => setSubtitle(event.target.value)}
-            placeholder="Uma frase curta que resuma a notícia"
+            placeholder="Uma frase curta que resuma o post"
             className="bg-secondary border-border"
           />
         </div>

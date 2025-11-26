@@ -24,7 +24,7 @@ const NewsPage = () => {
       setTotal(result.total);
     } catch (error) {
       console.error(error);
-      toast.error("Não foi possível carregar as notícias.");
+      toast.error("Não foi possível carregar os posts do blog.");
       setItems([]);
       setTotal(0);
     } finally {
@@ -44,16 +44,16 @@ const NewsPage = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="mb-10 space-y-3 text-center">
           <p className="text-sm uppercase tracking-[0.15em] text-primary/80">Novidades</p>
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">Notícias</h1>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">Blog</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Fique por dentro das atualizações, eventos e artigos do Instituto FORUP.
+            Fique por dentro das atualizações, eventos e artigos do Instituto FOR UP no nosso blog.
           </p>
         </div>
 
-        {loading && <p className="text-center text-muted-foreground">Carregando notícias...</p>}
+        {loading && <p className="text-center text-muted-foreground">Carregando posts do blog...</p>}
 
         {!loading && items.length === 0 && (
-          <p className="text-center text-muted-foreground">Nenhuma notícia publicada ainda.</p>
+          <p className="text-center text-muted-foreground">Nenhum post publicado ainda.</p>
         )}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
