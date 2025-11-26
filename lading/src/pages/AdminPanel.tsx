@@ -68,6 +68,14 @@ const AdminPanel = () => {
   const [isSavingCourse, setIsSavingCourse] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [clearingLeads, setClearingLeads] = useState(false);
+  const [clearingCourseId, setClearingCourseId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    courseId: string | null;
+    courseName: string | null;
+    scope: "all" | "course" | null;
+  }>({ open: false, courseId: null, courseName: null, scope: null });
 
   const newCoursePreviews = useMemo(
     () => newCourseFiles.map((file) => ({ url: URL.createObjectURL(file), name: file.name })),
@@ -209,6 +217,59 @@ const AdminPanel = () => {
   const handleAskDeleteCourse = (course: Course) => {
     setCourseToDelete(course);
     setDeleteDialogOpen(true);
+  };
+
+  const askClearAllLeads = () =>
+    setConfirmModal({ open: true, courseId: null, courseName: null, scope: "all" });
+
+  const askClearLeadsByCourse = (courseName: string, courseId: string) =>
+    setConfirmModal({ open: true, courseId, courseName, scope: "course" });
+
+  const handleConfirmClear = () => {
+    const { scope, courseId, courseName } = confirmModal;
+    if (!scope) return;
+
+    if (scope === "all") {
+      setClearingLeads(true);
+      try {
+        setLeads([]);
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("forup_leads");
+        }
+        toast.success("Leads locais removidos do painel.");
+      } catch (error) {
+        console.error("Erro ao limpar leads locais", error);
+        toast.error("Não foi possível limpar os leads locais.");
+      } finally {
+        setClearingLeads(false);
+        setConfirmModal({ open: false, courseId: null, courseName: null, scope: null });
+      }
+      return;
+    }
+
+    if (scope === "course" && courseId && courseName) {
+      setClearingCourseId(courseId);
+      try {
+        setLeads((prev) => {
+          const filtered = prev.filter((lead) => lead.course !== courseName);
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("forup_leads", JSON.stringify(filtered));
+          }
+          return filtered;
+        });
+        toast.success(`Leads locais do curso "${courseName}" foram removidos deste painel.`);
+      } catch (error) {
+        console.error("Erro ao limpar leads locais por curso", error);
+        toast.error("Não foi possível limpar os leads locais deste curso.");
+      } finally {
+        setClearingCourseId(null);
+        setConfirmModal({ open: false, courseId: null, courseName: null, scope: null });
+      }
+    }
+  };
+
+  const handleCancelClear = () => {
+    setConfirmModal({ open: false, courseId: null, courseName: null, scope: null });
   };
 
   const handleConfirmDeleteCourse = async () => {
@@ -426,10 +487,18 @@ const AdminPanel = () => {
           </Card>
 
           <Card className="bg-card shadow-card">
-            <CardHeader>
+            <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <CardTitle className="text-2xl font-display text-foreground">
                 Leads por curso
               </CardTitle>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={askClearAllLeads}
+                disabled={clearingLeads}
+              >
+                {clearingLeads ? "Limpando..." : "Limpar leads locais"}
+              </Button>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue={courses[0]?.id}>
@@ -454,11 +523,19 @@ const AdminPanel = () => {
 
                   return (
                     <TabsContent key={course.id} value={course.id}>
-                      {course.description && (
-                        <p className="text-sm text-muted-foreground mb-4">
-                          {course.description}
-                        </p>
-                      )}
+                      <div className="flex items-center justify-between gap-3 mb-4">
+                        {course.description && (
+                          <p className="text-sm text-muted-foreground">{course.description}</p>
+                        )}
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => askClearLeadsByCourse(course.name, course.id)}
+                          disabled={clearingCourseId === course.id}
+                        >
+                          {clearingCourseId === course.id ? "Limpando..." : "Limpar leads deste curso"}
+                        </Button>
+                      </div>
                       {courseLeads.length === 0 ? (
                         <p className="text-muted-foreground text-center py-8">
                           Nenhum interesse registrado ainda para este curso.
@@ -509,6 +586,37 @@ const AdminPanel = () => {
               </Tabs>
             </CardContent>
           </Card>
+
+          <AlertDialog open={confirmModal.open} onOpenChange={(open) => !open && handleCancelClear()}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmação</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {confirmModal.scope === "all" && (
+                    <>
+                      Tem certeza que deseja remover todos os leads locais deste painel?
+                      <br />
+                      Esta ação não afeta o Supabase, apenas o cache local.
+                    </>
+                  )}
+                  {confirmModal.scope === "course" && confirmModal.courseName && (
+                    <>
+                      Tem certeza que deseja remover os leads locais do curso{" "}
+                      <span className="font-semibold text-foreground">"{confirmModal.courseName}"</span>?
+                      <br />
+                      Esta ação não afeta o Supabase, apenas o cache deste painel.
+                    </>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={handleCancelClear}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmClear} className="bg-destructive hover:bg-destructive/90">
+                  Sim, remover
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </CourseLayout>
