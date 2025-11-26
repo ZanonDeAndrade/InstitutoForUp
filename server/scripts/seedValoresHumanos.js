@@ -21,14 +21,14 @@ const valoresHumanos = {
     "",
     "Metodologia de Desenvolvimento e Alta Performance",
     "- Nosso programa é uma combinação estratégica de aprendizado teórico e vivências práticas para garantir a absorção e aplicação dos valores:",
-    "●\tAulas Online ao Vivo: Sessões conduzidas para estudo, reflexão e aprofundamento das temáticas centrais do ciclo.",
-    "●\tJornadas de Imersão Presencial: Experiências práticas e vivenciais que promovem a mudança interior e a consolidação dos novos padrões de valor.",
+    "● Aulas Online ao Vivo: Sessões conduzidas para estudo, reflexão e aprofundamento das temáticas centrais do ciclo.",
+    "● Jornadas de Imersão Presencial: Experiências práticas e vivenciais que promovem a mudança interior e a consolidação dos novos padrões de valor.",
     "- Duração: Cada ciclo de desenvolvimento terá a duração de três a seis meses, estruturado com temáticas específicas que atuam como fio condutor da transformação.",
     "",
     "A Quem se Destina",
     "- Este programa é desenhado para:",
-    "●\tTodas as pessoas que buscam elevar sua performance profissional e pessoal a um novo patamar.",
-    "●\tIndivíduos de qualquer idade e campo de atuação que anseiam por mais clareza, propósito e realização em suas vidas.",
+    "● Todas as pessoas que buscam elevar sua performance profissional e pessoal a um novo patamar.",
+    "● Indivíduos de qualquer idade e campo de atuação que anseiam por mais clareza, propósito e realização em suas vidas.",
   ],
 };
 
@@ -43,23 +43,23 @@ const jovemLider = {
     "",
     "Os Alicerces da Liderança de Destaque",
     "O Programa DJL visa equipá-lo com os pilares necessários para exercer uma liderança impactante e duradoura:",
-    "1.\tSólida Base de Valores Humanos: Princípios universais e atemporais que garantem a integridade e a autoridade moral em suas decisões.",
-    "2.\tEstilo de Vida Distinto: O cultivo da disciplina, da visão e dos hábitos que diferenciam os profissionais de referência.",
-    "3.\tForma Mentis Próprio: A mentalidade estratégica essencial para o universo das grandes lideranças.",
+    "1. Sólida Base de Valores Humanos: Princípios universais e atemporais que garantem a integridade e a autoridade moral em suas decisões.",
+    "2. Estilo de Vida Distinto: O cultivo da disciplina, da visão e dos hábitos que diferenciam os profissionais de referência.",
+    "3. Forma Mentis Próprio: A mentalidade estratégica essencial para o universo das grandes lideranças.",
     "Nosso convite é para você descobrir e performar a sua existência em direção a um papel de destaque, definindo um propósito que dê sentido e sabor à sua vida.",
     "",
     "Estrutura para o Sucesso Consistente",
     "Este programa foi desenhado para proporcionar um crescimento sólido e consistente, garantindo que o conhecimento se transforme em caráter e prática:",
-    "●\tComposição: O Programa é estruturado em ciclos contínuos de formação.",
-    "○\tAulas Online ao Vivo: Sessões estratégicas para estudos de reflexão e aprofundamento dos conceitos de liderança.",
-    "○\tJornadas de Imersão Presencial: Experiências vivenciais e práticas fundamentais para a internalização dos valores e a mudança efetiva na mentalidade de liderança.",
-    "●\tDuração: Cada ciclo possui uma duração de seis meses, oferecendo o tempo necessário para o desenvolvimento consistente e a aplicação prática do aprendizado.",
+    "● Composição: O Programa é estruturado em ciclos contínuos de formação.",
+    "○Aulas Online ao Vivo: Sessões estratégicas para estudos de reflexão e aprofundamento dos conceitos de liderança.",
+    "○ Jornadas de Imersão Presencial: Experiências vivenciais e práticas fundamentais para a internalização dos valores e a mudança efetiva na mentalidade de liderança.",
+    "● Duração: Cada ciclo possui uma duração de seis meses, oferecendo o tempo necessário para o desenvolvimento consistente e a aplicação prática do aprendizado.",
     "Metodologia de Inspiração e Prática: O desenvolvimento é conduzido por professores e lideranças de alta performance com trajetórias comprovadamente exitosas. Eles atuarão como fontes de inspiração e guias práticos em sua jornada.",
     "",
     "A Quem se Destina",
     "Este programa é dedicado a:",
-    "●\tJovens que buscam uma realização superior e estão determinados a construir um destino profissional e pessoal diferenciado.",
-    "●\tFuturos protagonistas, seja almejando cargos executivos ou a posição de profissionais de referência e alto impacto em suas áreas de atuação.",
+    "● Jovens que buscam uma realização superior e estão determinados a construir um destino profissional e pessoal diferenciado.",
+    "● Futuros protagonistas, seja almejando cargos executivos ou a posição de profissionais de referência e alto impacto em suas áreas de atuação.",
   ],
 };
 
@@ -69,10 +69,10 @@ const plr = {
   quote: "“Alcançar uma posição de destaque, de liderança não é difícil. O desafio é realizar a evolução contínua e in progress.”",
   descriptionLines: [
     "- O universo da liderança é um caleidoscópio de competências, exigindo perfeição contínua em múltiplas dimensões. Não basta ser bom em uma área; a liderança de excelência exige maestria em:",
-    "●\tForma Mentis e Estilo de Vida: A atitude e a coerência do líder.",
-    "●\tCapacidade Técnica e Gestão: A sagacidade na gestão do resultado ao escopo.",
-    "●\tIntuição e Antecipação: A habilidade de ler cenários e antecipar eventos.",
-    "●\tGestão de Pessoas e Relações: A arte de formar equipes e das relações diplomáticas.",
+    "● Forma Mentis e Estilo de Vida: A atitude e a coerência do líder.",
+    "● Capacidade Técnica e Gestão: A sagacidade na gestão do resultado ao escopo.",
+    "● Intuição e Antecipação: A habilidade de ler cenários e antecipar eventos.",
+    "● Gestão de Pessoas e Relações: A arte de formar equipes e das relações diplomáticas.",
     "",
     "Objetivo: Potencialização e Maestria",
     "- O Programa Performando Liderança e Resultado (PLR) visa performar e exponenciar a sua capacidade de liderança. Começamos com um mapeamento inicial preciso de sua situação atual, condição e os resultados almejados.",
@@ -84,12 +84,37 @@ const plr = {
     "",
     "Estrutura e Dinâmica de Alto Nível",
     "- O PLR é um programa de imersão e consultoria, moldado para atender às suas exigências de crescimento:",
-    "●\tFormato: O Programa é composto por aulas online ao vivo e residence full immersion presencial.",
-    "●\tDesenvolvimento Contínuo: A cada encontro, serão desenvolvidos os múltiplos aspectos do universo da liderança, sempre de acordo com a dinâmica e as exigências do grupo formado.",
-    "●\tConsultoria Estratégica: Serão realizadas análises profundas de problemas e desafios, mediante consultoria individual ou dinâmicas de grupo.",
-    "●\tDuração: Cada ciclo tem duração de três a seis meses, focado em uma temática principal que servirá de fio condutor para o seu desenvolvimento.",
+    "● Formato: O Programa é composto por aulas online ao vivo e residence full immersion presencial.",
+    "● Desenvolvimento Contínuo: A cada encontro, serão desenvolvidos os múltiplos aspectos do universo da liderança, sempre de acordo com a dinâmica e as exigências do grupo formado.",
+    "● Consultoria Estratégica: Serão realizadas análises profundas de problemas e desafios, mediante consultoria individual ou dinâmicas de grupo.",
+    "● Duração: Cada ciclo tem duração de três a seis meses, focado em uma temática principal que servirá de fio condutor para o seu desenvolvimento.",
     "- Metodologia de Referência: O desenvolvimento é realizado mediante aulas práticas, vivenciais e estudos de reflexão, conduzidos por lideranças de alta performance que possam servir de referência em sua caminhada.",
     "Pronto para realizar a evolução contínua e performar seus resultados como líder de excelência?",
+  ],
+};
+
+const cafeCultural = {
+  id: "cafe-cultural",
+  name: "Café Cultural",
+  quote: undefined,
+  descriptionLines: [
+    "CAFÉ CULTURAL",
+    "Um programa aberto e gratuito desenhado para elevar o humanismo, a autoestima e a dignidade humana, reacendendo o prazer de viver em direção à autorrealização e ao sucesso na própria vida.",
+    "",
+    "O Poder da Reflexão e do Legado",
+    "O Café Cultural é um espaço de inspiração e crescimento, baseado na sabedoria que moldou a humanidade.",
+    "● Valores em Foco: Encontros mensais dedicados à leitura e à reflexão profunda sobre os Valores Humanos universais.",
+    "● Fontes de Inspiração: Inspirados nos grandes pensadores e lideranças mundiais – tanto contemporâneos quanto perenes, cujos legados (obras e realizações) nos beneficiam até hoje.",
+    "Elevando o Nível Cultural e Pessoal",
+    "O Café Cultural vai além da simples leitura:",
+    "● Ele instiga a mente, abrindo a curiosidade para novos horizontes.",
+    "● Proporciona um debate leve e prazeroso sobre temas profundos.",
+    "● Eleva o seu nível cultural, reforçando a ideia de que ser culto é um sinal de nobreza interior.",
+    "No final de cada encontro, os participantes saem inspirados, com ímpeto renovado e a \"vontade de fazer mais\" em suas vidas.",
+    "Informações Práticas",
+    "● Frequência: Encontros mensais.",
+    "● Dia: Última quarta-feira de cada mês.",
+    "● Próximo Ciclo: Inicia em Fevereiro de 2026.",
   ],
 };
 
@@ -132,7 +157,7 @@ const jornadaLideristica = {
   ],
 };
 
-const coursesData = [valoresHumanos, jovemLider, plr, jornadaLideristica];
+const coursesData = [valoresHumanos, jovemLider, plr, jornadaLideristica, cafeCultural];
 
 async function main() {
   // Remove curso antigo se ainda existir

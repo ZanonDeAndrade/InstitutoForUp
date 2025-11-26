@@ -16,56 +16,45 @@ const CafeCultural = () => {
           </div>
 
           {/* Description */}
-          <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 mb-12 animate-fade-in-delay">
-            <div className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center mb-8 space-y-4">
-              <p>
-                O Café Cultural é um grupo de estudos com encontros realizados mensalmente, dedicados a mergulhar na
-                história da inteligência humana. Nosso objetivo é analisar e debater personalidades e assuntos que
-                representam o auge da inovação e do conhecimento.
-              </p>
-              <p>
-                A cada ciclo, exploramos grandes mentes (como cientistas, filósofos e artistas) e temas que nos ajudam a
-                entender o momento histórico e a capacidade de pensar da humanidade. O encontro é um momento de alegria
-                e prazer, sem formalidades excessivas, onde se busca conhecer mais de forma prazerosa.
-              </p>
-              <p>
-                O foco é no estudo detalhado, mas acessível, gerando aprendizados valiosos para a vida toda. As
-                personalidades estudadas são analisadas através dos seguintes elementos: as formas de mentes,
-                performances, habilidades, estilos de vida, culturas, educação, valores humanos e escolhas que as levaram
-                a alcançar realizações de ponta. O principal é entender esses componentes de uma forma leve e informativa.
-              </p>
-              <p>
-                O formato de nosso encontro mensal inclui o compartilhamento de material curado para estudo prévio, uma
-                apresentação detalhada do tema e, no coração do evento, um debate cultural aberto e crítico. O Café
-                Cultural é um espaço multidisciplinar que reúne pessoas de diversas áreas, unidas pela curiosidade, em um
-                ambiente acolhedor e estimulante.
+          <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 mb-12 animate-fade-in-delay space-y-8 text-justify">
+            <div className="text-lg md:text-xl text-muted-foreground leading-relaxed space-y-3 text-justify">
+              <p className="text-lg md:text-xl">
+                Um programa aberto e gratuito desenhado para elevar o humanismo, a autoestima e a dignidade humana,
+                reacendendo o prazer de viver em direção à autorrealização e ao sucesso na própria vida.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="flex flex-col items-center p-6 bg-secondary/30 rounded-xl">
-                <Users className="w-10 h-10 text-primary mb-3" />
-                <h3 className="font-semibold text-foreground mb-2">Encontros Abertos</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Participe de discussões enriquecedoras
-                </p>
-              </div>
+            <div className="space-y-3">
+              <p className="text-foreground font-semibold text-lg md:text-xl">O Poder da Reflexão e do Legado</p>
+              <p className="text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">
+                O Café Cultural é um espaço de inspiração e crescimento, baseado na sabedoria que moldou a humanidade.
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">
+                <li>Valores em Foco: Encontros mensais dedicados à leitura e à reflexão profunda sobre os Valores Humanos universais.</li>
+                <li>Fontes de Inspiração: Inspirados nos grandes pensadores e lideranças mundiais – tanto contemporâneos quanto perenes, cujos legados (obras e realizações) nos beneficiam até hoje.</li>
+              </ul>
+            </div>
 
-              <div className="flex flex-col items-center p-6 bg-secondary/30 rounded-xl">
-                <Calendar className="w-10 h-10 text-primary mb-3" />
-                <h3 className="font-semibold text-foreground mb-2">Encontros Regulares</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Programação mensal com temas diversos
-                </p>
-              </div>
+            <div className="space-y-3">
+              <p className="text-foreground font-semibold text-lg md:text-xl">Elevando o Nível Cultural e Pessoal</p>
+              <p className="text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">O Café Cultural vai além da simples leitura:</p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">
+                <li>Ele instiga a mente, abrindo a curiosidade para novos horizontes.</li>
+                <li>Proporciona um debate leve e prazeroso sobre temas profundos.</li>
+                <li>Eleva o seu nível cultural, reforçando a ideia de que ser culto é um sinal de nobreza interior.</li>
+              </ul>
+              <p className="text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">
+                No final de cada encontro, os participantes saem inspirados, com ímpeto renovado e a "vontade de fazer mais" em suas vidas.
+              </p>
+            </div>
 
-              <div className="flex flex-col items-center p-6 bg-secondary/30 rounded-xl">
-                <MessageCircle className="w-10 h-10 text-primary mb-3" />
-                <h3 className="font-semibold text-foreground mb-2">Comunidade Ativa</h3>
-                <p className="text-sm text-muted-foreground text-center">
-                  Conecte-se com pessoas inspiradoras
-                </p>
-              </div>
+            <div className="space-y-3">
+              <p className="text-foreground font-semibold text-lg md:text-xl">Informações Práticas</p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground leading-relaxed text-justify text-lg md:text-xl">
+                <li>Frequência: Encontros mensais.</li>
+                <li>Dia: Última quarta-feira de cada mês.</li>
+                <li>Próximo Ciclo: Inicia em Fevereiro de 2026.</li>
+              </ul>
             </div>
           </div>
 

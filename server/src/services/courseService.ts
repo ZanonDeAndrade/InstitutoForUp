@@ -24,6 +24,14 @@ const parseFields = (fields: unknown) => {
   return fields;
 };
 
+const normalizeDescription = (description?: string | null) => {
+  if (typeof description !== "string") return description;
+  return description
+    .replace(/\t+/g, " ") // remove tabs
+    .replace(/ {2,}/g, " ") // colapsa múltiplos espaços, preservando quebras de linha
+    .replace(/ \n/g, "\n"); // remove espaços antes da quebra
+};
+
 export class CourseService {
   private proxyUrl(storageKey?: string | null) {
     if (!storageKey) return undefined;
@@ -40,6 +48,7 @@ export class CourseService {
     const coursesWithSigned = await Promise.all(
       courses.map(async (course) => ({
         ...course,
+        description: normalizeDescription(course.description),
         fields: parseFields(course.fields),
         images: await Promise.all(
           course.images.map(async (img) => ({
@@ -67,6 +76,7 @@ export class CourseService {
     );
     return {
       ...course,
+      description: normalizeDescription(course.description),
       fields: parseFields(course.fields),
       images,
     };

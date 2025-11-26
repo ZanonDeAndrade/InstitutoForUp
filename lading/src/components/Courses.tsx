@@ -49,7 +49,7 @@ const FALLBACK_COURSES: LandingCourse[] = [
   {
     title: "Café Cultural",
     description:
-      "O Café Cultural é um grupo de estudos com encontros realizados mensalmente, dedicados a mergulhar na história da inteligência humana. Nosso objetivo é analisar e debater personalidades e assuntos que representam o auge da inovação e do conhecimento.",
+      "Programa aberto e gratuito para elevar humanismo, autoestima e dignidade, com encontros mensais de reflexão sobre valores humanos e inspiração em grandes pensadores.",
     link: "/cafe-cultural",
   },
 ];

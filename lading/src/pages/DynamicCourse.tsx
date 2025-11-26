@@ -60,6 +60,7 @@ const JL_HEADINGS = new Set([
 const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; isValoresHumanos?: boolean }) => {
   const bulletRegex = /^[•●○]/;
   const cleanLine = (line: string) => line.replace(/^[\s\-•●○]+/, "");
+  const normalizeText = (line: string) => line.replace(/\s+/g, " ").trim();
   const headingSet = options?.headingSet;
   const blocks = text.split(/\n\s*\n/);
 
@@ -82,7 +83,7 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
           className="text-lg md:text-xl text-muted-foreground leading-relaxed text-left text-justify space-y-2 list-disc list-inside"
         >
           {lines.map((line, liIndex) => (
-            <li key={`vh-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
+            <li key={`vh-li-${idx}-${liIndex}`}>{normalizeText(line.replace(/^[•●○]\s*/, ""))}</li>
           ))}
         </ul>
       );
@@ -103,13 +104,13 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
               key={`vh-heading-p-${idx}-${liIndex}`}
               className="text-lg md:text-xl text-muted-foreground leading-relaxed text-justify whitespace-pre-line"
             >
-              {cleanLine(line)}
+            {normalizeText(cleanLine(line))}
             </p>
           ))}
           {!!bulletLines.length && (
             <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed text-justify space-y-2 list-disc list-inside">
               {bulletLines.map((line, liIndex) => (
-                <li key={`vh-heading-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
+                <li key={`vh-heading-li-${idx}-${liIndex}`}>{normalizeText(line.replace(/^[•●○]\s*/, ""))}</li>
               ))}
             </ul>
           )}
@@ -123,7 +124,7 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
         key={`block-${idx}-line-${lineIdx}`}
         className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center text-justify whitespace-pre-line"
       >
-        {cleanLine(line)}
+        {normalizeText(cleanLine(line))}
       </p>
     ));
   });
