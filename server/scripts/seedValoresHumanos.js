@@ -29,7 +29,6 @@ const valoresHumanos = {
     "- Este programa é desenhado para:",
     "●\tTodas as pessoas que buscam elevar sua performance profissional e pessoal a um novo patamar.",
     "●\tIndivíduos de qualquer idade e campo de atuação que anseiam por mais clareza, propósito e realização em suas vidas.",
-    "- Se você está pronto para olhar para dentro, construir sua base de valores e iniciar a jornada para a Autorrealização e o sucesso com propósito.",
   ],
 };
 
@@ -94,7 +93,46 @@ const plr = {
   ],
 };
 
-const coursesData = [valoresHumanos, jovemLider, plr];
+const jornadaLideristica = {
+  id: "jornada-lideristica",
+  name: "Jornada Liderística: Critério Organísmico, Intuição e Racionalidade",
+  quote:
+    "“Cada um é resultado das milhares de decisões e escolhas diárias. Seu futuro é resultado das suas escolhas no aqui e agora. Suas escolhas têm propósito de vida?”",
+  descriptionLines: [
+    "Por que a Jornada Liderística?",
+    "Somos feitos de miríades de escolhas, desde as mais insignificantes até as mais impactantes, que determinam o rumo da vida.",
+    "A grande questão é: qual critério utilizamos nas escolhas e tomadas de decisão?",
+    "Somos protagonistas das nossas escolhas ou seguimos a corrente popular, redes sociais e opiniões alheias?",
+    "Voamos o voo da águia ou fazemos parte de um cardume de opiniões?",
+    "Nossos resultados são consequência das escolhas diárias, feitas com coerência. O critério organísmico e a racionalidade sobre a intuição são a melhor estrada para escolhas vencedoras, dia após dia.",
+    "Vivendo o aqui e agora com propósito claro, baseado nos meios, idade e condições econômicas, construímos uma existência com evolução contínua. No final, o propósito é único: realizar a metafísica da alma.",
+    "O convite é: vamos performar as suas escolhas versus a sua estrada do ser?",
+    "",
+    "Propósito e Temáticas",
+    "A jornada visa a prática diária para decisões e escolhas otimais.",
+    "Temáticas centrais:",
+    "• Critério organísmico e percepção organísmica — compreensão com vivências práticas.",
+    "• Miricismo cotidiano, estilo de vida e critério organísmico.",
+    "• Intuição e racionalidade: performance para as escolhas otimais.",
+    "",
+    "Metodologia e Coordenação",
+    "Metodologias de imersão:",
+    "• Aulas dialogadas.",
+    "• Atividades práticas.",
+    "• Dinâmicas de grupo.",
+    "• Instrumentos de intervenção.",
+    "Coordenação:",
+    "• Prof. Ms. Mami Ueno.",
+    "• Mestre em Educação (Universidad SEK, Chile), especializações em Ontopsicologia (Universidade de São Petersburgo/Rússia) e Direito Internacional Público e Privado (UFRGS), MBAs em Business Intuition (Antonio Meneghetti Faculdade e FOIL, Itália).",
+    "• Empresária, consultora em projetos nacionais e internacionais, CEO da Ueno Profit e professora da Antonio Meneghetti Faculdade.",
+    "",
+    "Datas e Locais",
+    "• Data: 12 de dezembro (sexta) a 14 de dezembro (domingo).",
+    "• Local: Hotel Capo Zorial e Projeto Terra - Recanto Maestro - RS.",
+  ],
+};
+
+const coursesData = [valoresHumanos, jovemLider, plr, jornadaLideristica];
 
 async function main() {
   // Remove curso antigo se ainda existir
@@ -127,7 +165,7 @@ async function main() {
     });
   }
 
-  console.log("Cursos atualizados com os textos exatos (VH, DJL, PLR).");
+  console.log("Cursos atualizados com os textos exatos (VH, DJL, PLR, Jornada Liderística).");
 }
 
 main()
