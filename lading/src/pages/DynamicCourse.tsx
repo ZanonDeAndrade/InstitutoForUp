@@ -40,8 +40,21 @@ const VH_HEADINGS = new Set([
   "Metodologia de Desenvolvimento e Alta Performance",
   "A Quem se Destina",
 ]);
+const DJL_HEADINGS = new Set([
+  "Os Alicerces da Liderança de Destaque",
+  "Estrutura para o Sucesso Consistente",
+  "A Quem se Destina",
+]);
+const PLR_HEADINGS = new Set([
+  "Objetivo: Potencialização e Maestria",
+  "O Resgate do Mestre Interior",
+  "Estrutura e Dinâmica de Alto Nível",
+]);
 
-const renderParagraphs = (text: string, isValoresHumanos: boolean) => {
+const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; isValoresHumanos?: boolean }) => {
+  const bulletRegex = /^[•●○]/;
+  const cleanLine = (line: string) => line.replace(/^[\s-]+/, "");
+  const headingSet = options?.headingSet;
   const blocks = text.split(/\n\s*\n/);
 
   return blocks.map((block, idx) => {
@@ -52,18 +65,18 @@ const renderParagraphs = (text: string, isValoresHumanos: boolean) => {
 
     const firstLine = lines[0] ?? "";
     const rest = lines.slice(1);
-    const allBullets = lines.every((line) => /^[-•●]/.test(line));
-    const isHeadingBlock = isValoresHumanos && VH_HEADINGS.has(firstLine);
+    const allBullets = lines.every((line) => bulletRegex.test(line));
+    const isHeadingBlock = headingSet?.has(firstLine) ?? false;
 
-    // Lista simples (primeiro bloco) em formato de bullets
-    if (isValoresHumanos && allBullets) {
+    // Lista simples apenas quando o bloco é todo de bullets explícitos
+    if (allBullets) {
       return (
         <ul
           key={`block-${idx}`}
           className="text-lg md:text-xl text-muted-foreground leading-relaxed text-left space-y-2 list-disc list-inside"
         >
           {lines.map((line, liIndex) => (
-            <li key={`vh-li-${idx}-${liIndex}`}>{line.replace(/^[-•●]\s*/, "")}</li>
+            <li key={`vh-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
           ))}
         </ul>
       );
@@ -71,42 +84,42 @@ const renderParagraphs = (text: string, isValoresHumanos: boolean) => {
 
     // Blocos com título + conteúdo
     if (isHeadingBlock) {
-      const bulletLines = rest.filter((line) => /^[-•●]/.test(line));
-      const otherLines = rest.filter((line) => !/^[-•●]/.test(line));
+      const bulletLines = rest.filter((line) => bulletRegex.test(line));
+      const otherLines = rest.filter((line) => !bulletRegex.test(line));
 
       return (
         <div key={`block-${idx}`} className="space-y-3 text-left">
           <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">
             {firstLine}
           </p>
-          {!!bulletLines.length && (
-            <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
-              {bulletLines.map((line, liIndex) => (
-                <li key={`vh-heading-li-${idx}-${liIndex}`}>{line.replace(/^[-•●]\s*/, "")}</li>
-              ))}
-            </ul>
-          )}
           {otherLines.map((line, liIndex) => (
             <p
               key={`vh-heading-p-${idx}-${liIndex}`}
               className="text-lg md:text-xl text-muted-foreground leading-relaxed whitespace-pre-line"
             >
-              {line}
+              {cleanLine(line)}
             </p>
           ))}
+          {!!bulletLines.length && (
+            <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
+              {bulletLines.map((line, liIndex) => (
+                <li key={`vh-heading-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
+              ))}
+            </ul>
+          )}
         </div>
       );
     }
 
     // Fallback padrão
-    return (
+    return lines.map((line, lineIdx) => (
       <p
-        key={`block-${idx}`}
+        key={`block-${idx}-line-${lineIdx}`}
         className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center whitespace-pre-line"
       >
-        {block}
+        {cleanLine(line)}
       </p>
-    );
+    ));
   });
 };
 
@@ -147,6 +160,23 @@ const DynamicCourse = () => {
   const isValoresHumanos =
     (course?.id?.toLowerCase() ?? "") === "valores-humanos" ||
     (course?.name?.toLowerCase() ?? "").includes("valores humanos");
+  const isJovemLider =
+    (course?.id?.toLowerCase() ?? "") === "desenvolvimento-jovem-lider" ||
+    (course?.name?.toLowerCase() ?? "").includes("jovem líder");
+  const isPlr =
+    (course?.id?.toLowerCase() ?? "") === "performando-lideranca-resultado" ||
+    (course?.name?.toLowerCase() ?? "").includes("performando liderança e resultado");
+  const headingSet = isValoresHumanos ? VH_HEADINGS : isJovemLider ? DJL_HEADINGS : isPlr ? PLR_HEADINGS : undefined;
+  const quoteFromFields = typeof (course?.fields as Record<string, unknown> | undefined)?.quote === "string"
+    ? String((course?.fields as Record<string, unknown> | undefined)?.quote)
+    : null;
+  const highlightQuote =
+    quoteFromFields ||
+    (isValoresHumanos
+      ? "“O resultado tangível, depende dos valores intangíveis.” (U.M.)"
+      : isPlr
+        ? "“Alcançar uma posição de destaque, de liderança não é difícil. O desafio é realizar a evolução contínua e in progress.”"
+        : null);
 
   useEffect(() => {
     setShowFullDesc(false);
@@ -203,11 +233,9 @@ const DynamicCourse = () => {
               {course.name}
             </h1>
             <div className="w-24 h-1 bg-gradient-gold mx-auto mb-8" />
-            {isValoresHumanos && (
+            {highlightQuote && (
               <div className="mt-6 bg-secondary/40 border border-border/60 rounded-2xl px-6 py-4 inline-block shadow-card">
-                <p className="text-lg md:text-xl text-muted-foreground italic">
-                  “O resultado tangível, depende dos valores intangíveis.” (U.M.)
-                </p>
+                <p className="text-lg md:text-xl text-muted-foreground italic">{highlightQuote}</p>
               </div>
             )}
           </div>
@@ -220,7 +248,7 @@ const DynamicCourse = () => {
 
           {descriptionContent && (
             <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 mb-12 animate-fade-in-delay space-y-4">
-              {renderParagraphs(descriptionContent, isValoresHumanos)}
+              {renderParagraphs(descriptionContent, { headingSet, isValoresHumanos })}
               {whatsappConfig && (
                 <div className="mt-2 text-center">
                   <button

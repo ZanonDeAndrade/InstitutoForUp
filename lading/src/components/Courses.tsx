@@ -14,16 +14,30 @@ const FRIENDLY_COURSE_ROUTES: Record<string, string> = {
   "criterios-valores": "/criterios-valores",
   "performando-liderancas": "/performando-liderancas",
   "jovens-lideres": "/jovens-lideres",
+  "desenvolvimento-jovem-lider": "/curso/desenvolvimento-jovem-lider",
+  "performando-lideranca-resultado": "/curso/performando-lideranca-resultado",
   "valores-humanos": "/curso/valores-humanos",
   "cafe-cultural": "/cafe-cultural",
 };
 
 const FALLBACK_COURSES: LandingCourse[] = [
   {
+    title: "Desenvolvimento do Jovem Líder (DJL)",
+    description:
+      "Construa a base de liderança com valores humanos, disciplina e mentalidade estratégica. Programa estruturado em ciclos com aulas ao vivo e imersões presenciais para jovens que querem protagonizar sua carreira.",
+    link: "/curso/desenvolvimento-jovem-lider",
+  },
+  {
     title: "Valores Humanos: Base para a Autorrealização (VH)",
     description:
       "Construa uma fundação sólida em valores universais para performar liderança, resultado e criatividade com propósito.",
     link: "/curso/valores-humanos",
+  },
+  {
+    title: "Performando Liderança e Resultado (PLR)",
+    description:
+      "Imersão para líderes que buscam maestria em resultado, gestão e pessoas. Aulas ao vivo, imersões presenciais e consultoria estratégica para evolução contínua.",
+    link: "/curso/performando-lideranca-resultado",
   },
   {
     title: "Café Cultural",
