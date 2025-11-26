@@ -70,5 +70,5 @@ app.use((error: Error, _req: express.Request, res: express.Response, _next: expr
 
 // Inicialização do servidor
 app.listen(port, () => {
-  console.log(`ForUp API running on port ${port}`);
+  console.log(`FORUP API running on port ${port}`);
 });

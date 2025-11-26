@@ -26,7 +26,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 animate-fade-in-delay leading-relaxed max-w-3xl mx-auto">
-            O Instituto ForUp Education oferece programas voltados ao desenvolvimento humano e à liderança com valores.
+            O Instituto FORUP Education oferece programas voltados ao desenvolvimento humano e à liderança com valores.
           </p>
 
           <div className="animate-slide-up">

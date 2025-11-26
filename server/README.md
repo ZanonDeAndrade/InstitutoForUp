@@ -1,4 +1,4 @@
-# ForUp Lead Forge API
+# FORUP Lead Forge API
 
 API em Express + Prisma para guardar cursos e imagens.
 
