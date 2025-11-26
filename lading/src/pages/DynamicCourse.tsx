@@ -53,7 +53,7 @@ const PLR_HEADINGS = new Set([
 
 const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; isValoresHumanos?: boolean }) => {
   const bulletRegex = /^[•●○]/;
-  const cleanLine = (line: string) => line.replace(/^[\s-]+/, "");
+  const cleanLine = (line: string) => line.replace(/^[\s\-•●○]+/, "");
   const headingSet = options?.headingSet;
   const blocks = text.split(/\n\s*\n/);
 
