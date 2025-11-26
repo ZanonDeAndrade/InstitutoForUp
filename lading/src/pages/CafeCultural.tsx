@@ -1,6 +1,6 @@
 import CourseLayout from "@/components/CourseLayout";
 import { MessageCircle, Users, Calendar } from "lucide-react";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import { Button } from "@/components/ui/button";
 
 const CafeCultural = () => {
   return (
@@ -17,10 +17,30 @@ const CafeCultural = () => {
 
           {/* Description */}
           <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 mb-12 animate-fade-in-delay">
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center mb-8">
-              Um espaço de diálogo e partilha de ideias sobre temas humanos, culturais e contemporâneos. 
-              Aberto ao público e com encontros regulares.
-            </p>
+            <div className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center mb-8 space-y-4">
+              <p>
+                O Café Cultural é um grupo de estudos com encontros realizados mensalmente, dedicados a mergulhar na
+                história da inteligência humana. Nosso objetivo é analisar e debater personalidades e assuntos que
+                representam o auge da inovação e do conhecimento.
+              </p>
+              <p>
+                A cada ciclo, exploramos grandes mentes (como cientistas, filósofos e artistas) e temas que nos ajudam a
+                entender o momento histórico e a capacidade de pensar da humanidade. O encontro é um momento de alegria
+                e prazer, sem formalidades excessivas, onde se busca conhecer mais de forma prazerosa.
+              </p>
+              <p>
+                O foco é no estudo detalhado, mas acessível, gerando aprendizados valiosos para a vida toda. As
+                personalidades estudadas são analisadas através dos seguintes elementos: as formas de mentes,
+                performances, habilidades, estilos de vida, culturas, educação, valores humanos e escolhas que as levaram
+                a alcançar realizações de ponta. O principal é entender esses componentes de uma forma leve e informativa.
+              </p>
+              <p>
+                O formato de nosso encontro mensal inclui o compartilhamento de material curado para estudo prévio, uma
+                apresentação detalhada do tema e, no coração do evento, um debate cultural aberto e crítico. O Café
+                Cultural é um espaço multidisciplinar que reúne pessoas de diversas áreas, unidas pela curiosidade, em um
+                ambiente acolhedor e estimulante.
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="flex flex-col items-center p-6 bg-secondary/30 rounded-xl">
@@ -58,16 +78,23 @@ const CafeCultural = () => {
               Entre no grupo do WhatsApp e receba informações sobre os próximos encontros e materiais exclusivos
             </p>
             
-            <WhatsAppButton
-              courseName="Café Cultural"
+            <Button
+              asChild
               variant="hero"
               size="lg"
-              label="Participar do Próximo Encontro"
               className="text-lg px-10 py-6 h-auto"
-            />
+            >
+              <a
+                href="https://chat.whatsapp.com/Cpxf7ujEIQZEck6REKrlP6"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Participar do Próximo Encontro
+              </a>
+            </Button>
 
             <p className="text-sm text-muted-foreground mt-6">
-              Ao clicar, você será redirecionado para o WhatsApp
+              Ao clicar, você será redirecionado para o grupo do WhatsApp.
             </p>
           </div>
         </div>
