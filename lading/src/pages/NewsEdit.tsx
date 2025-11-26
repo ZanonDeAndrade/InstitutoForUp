@@ -22,7 +22,7 @@ const NewsEdit = () => {
       setItem(data);
     } catch (error) {
       console.error(error);
-      toast.error("Notícia não encontrada.");
+      toast.error("Post não encontrado.");
     } finally {
       setLoading(false);
     }
@@ -40,13 +40,13 @@ const NewsEdit = () => {
       setSubmitting(true);
       const updated = await newsApi.update(item.id, payload);
       setItem(updated);
-      toast.success("Notícia atualizada.");
+      toast.success("Post atualizado.");
       if (updated.slug !== slug) {
         navigate(`/admin/news/${updated.slug}/edit`, { replace: true });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao atualizar notícia.");
+      toast.error("Erro ao atualizar post.");
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +59,7 @@ const NewsEdit = () => {
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle className="text-2xl font-display text-foreground">
-                {item ? `Editando: ${item.title}` : "Editar notícia"}
+                {item ? `Editando: ${item.title}` : "Editar post"}
               </CardTitle>
               <p className="text-sm text-muted-foreground">Ajuste conteúdo, imagem e status.</p>
             </div>
@@ -77,7 +77,7 @@ const NewsEdit = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {loading && <p className="text-muted-foreground">Carregando notícia...</p>}
+            {loading && <p className="text-muted-foreground">Carregando post...</p>}
             {!loading && item && (
               <NewsForm
                 initial={item}
@@ -87,7 +87,7 @@ const NewsEdit = () => {
               />
             )}
             {!loading && !item && (
-              <p className="text-destructive">Não foi possível localizar esta notícia.</p>
+              <p className="text-destructive">Não foi possível localizar este post.</p>
             )}
           </CardContent>
         </Card>

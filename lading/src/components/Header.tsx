@@ -13,7 +13,7 @@ const Header = () => {
     { to: "/", label: "Home" },
     { to: "/#sobre", label: "Sobre nós" },
     { to: "/#cursos", label: "Projetos de Formação" },
-    { to: "/news", label: "Notícias" },
+    { to: "/news", label: "Blog" },
     { to: "/#contato", label: "Contato" },
   ];
 
@@ -26,14 +26,14 @@ const Header = () => {
             <div className="w-12 h-12 rounded-lg overflow-hidden shadow-gold ring-1 ring-border/60 bg-secondary/40 flex items-center justify-center group-hover:shadow-xl transition-all duration-300">
               <img
                 src={logo}
-                alt="Instituto FORUP Education"
+                alt="Instituto FOR UP Education"
                 className="h-full w-full object-contain"
                 loading="lazy"
               />
             </div>
             <div className="hidden md:block">
               <h1 className="text-xl font-display font-bold text-foreground leading-tight">
-                Instituto FORUP
+                Instituto FOR UP
               </h1>
               <p className="text-xs text-muted-foreground">Education</p>
             </div>

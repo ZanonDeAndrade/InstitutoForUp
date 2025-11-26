@@ -27,7 +27,7 @@ const Footer = () => {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            © 2025 Instituto FORUP Education — Todos os direitos reservados.
+            © 2025 Instituto FOR UP Education — Todos os direitos reservados.
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ const About = () => {
       <div className="container mx-auto max-w-5xl md:max-w-6xl">
         <div className="bg-card rounded-2xl shadow-card p-6 sm:p-8 md:p-12 lg:p-14 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-8 text-gradient-gold">
-            Sobre o Instituto FORUP Education
+            Sobre o Instituto FOR UP Education
           </h2>
 
           <Carousel opts={{ align: "start", loop: false }} autoHeight className="mt-4 md:mt-6">
@@ -31,8 +31,8 @@ const About = () => {
                   <div>
                     <p className="text-foreground font-semibold text-lg sm:text-xl md:text-2xl">Missão</p>
                     <p className="mt-2">
-                      Formar pessoas pela visão humanista, liderança e criatividade, contribuindo para uma sociedade
-                      mais evoluída.
+                      Desenvolver pessoas vencedoras através da formação em valores humanos e performando liderança,
+                      resultado e criatividade.
                     </p>
                   </div>
                   <div>

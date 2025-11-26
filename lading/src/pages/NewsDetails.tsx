@@ -43,12 +43,12 @@ const NewsDetails = () => {
   return (
     <CourseLayout>
       <div className="container mx-auto max-w-5xl px-4 py-16">
-        {loading && <p className="text-muted-foreground">Carregando notícia...</p>}
+        {loading && <p className="text-muted-foreground">Carregando post...</p>}
         {!loading && !news && (
           <div className="space-y-3">
-            <p className="text-destructive">Notícia não encontrada.</p>
+            <p className="text-destructive">Post não encontrado.</p>
             <Button asChild variant="outline">
-              <Link to="/news">Ver todas as notícias</Link>
+              <Link to="/news">Ver todos os posts</Link>
             </Button>
           </div>
         )}
