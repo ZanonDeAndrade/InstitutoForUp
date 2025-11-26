@@ -11,7 +11,8 @@ import logo from "@/assets/Logo.jpg";
 const Header = () => {
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/#cursos", label: "Cursos" },
+    { to: "/#sobre", label: "Sobre nós" },
+    { to: "/#cursos", label: "Projetos de Formação" },
     { to: "/news", label: "Notícias" },
     { to: "/#contato", label: "Contato" },
   ];
@@ -25,14 +26,14 @@ const Header = () => {
             <div className="w-12 h-12 rounded-lg overflow-hidden shadow-gold ring-1 ring-border/60 bg-secondary/40 flex items-center justify-center group-hover:shadow-xl transition-all duration-300">
               <img
                 src={logo}
-                alt="Instituto ForUp Education"
+                alt="Instituto FORUP Education"
                 className="h-full w-full object-contain"
                 loading="lazy"
               />
             </div>
             <div className="hidden md:block">
               <h1 className="text-xl font-display font-bold text-foreground leading-tight">
-                Instituto ForUp
+                Instituto FORUP
               </h1>
               <p className="text-xs text-muted-foreground">Education</p>
             </div>

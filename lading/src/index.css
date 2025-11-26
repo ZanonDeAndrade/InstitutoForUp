@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Instituto ForUp Education - Design System */
+/* Instituto FORUP Education - Design System */
     /* Azul profundo institucional */
     --background: 230 92% 15%;
     --foreground: 0 0% 100%;

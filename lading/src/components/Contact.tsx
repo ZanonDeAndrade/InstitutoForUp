@@ -11,7 +11,7 @@ const Contact = () => {
           </h2>
           
           <p className="text-lg text-muted-foreground text-center mb-10">
-            Quer saber mais sobre nossos programas ou trazer o ForUp Education para sua cidade? Fale conosco.
+            Quer saber mais sobre nossos programas ou trazer o FORUP Education para sua cidade? Fale conosco.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

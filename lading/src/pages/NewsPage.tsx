@@ -46,7 +46,7 @@ const NewsPage = () => {
           <p className="text-sm uppercase tracking-[0.15em] text-primary/80">Novidades</p>
           <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">Notícias</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Fique por dentro das atualizações, eventos e artigos do Instituto ForUp.
+            Fique por dentro das atualizações, eventos e artigos do Instituto FORUP.
           </p>
         </div>
 

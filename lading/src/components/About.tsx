@@ -2,11 +2,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 
 const About = () => {
   return (
-    <section className="py-20 px-4">
+    <section id="sobre" className="py-20 px-4">
       <div className="container mx-auto max-w-5xl md:max-w-6xl">
         <div className="bg-card rounded-2xl shadow-card p-6 sm:p-8 md:p-12 lg:p-14 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-8 text-gradient-gold">
-            Sobre o Instituto ForUp Education
+            Sobre o Instituto FORUP Education
           </h2>
 
           <Carousel opts={{ align: "start", loop: false }} autoHeight className="mt-4 md:mt-6">

@@ -36,7 +36,7 @@ const NewsSection = () => {
               Últimas notícias
             </h2>
             <p className="text-muted-foreground mt-2 max-w-2xl">
-              Artigos, eventos e comunicados do Instituto ForUp.
+              Artigos, eventos e comunicados do Instituto FORUP.
             </p>
           </div>
           <ButtonLink />

@@ -45,7 +45,7 @@ const Courses = () => {
     <section id="cursos" className="py-20 px-4">
       <div className="container mx-auto">
         <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-4 text-foreground">
-          Nossos Cursos e Programas
+          Nossos Projetos de Formação
         </h2>
         <p className="text-center text-muted-foreground mb-12 text-lg max-w-2xl mx-auto">
           Descubra o programa ideal para sua jornada de desenvolvimento pessoal e profissional
@@ -53,7 +53,7 @@ const Courses = () => {
 
         {courses.length === 0 ? (
           <p className="text-center text-muted-foreground mt-8">
-            Nenhum curso cadastrado ainda. Volte em breve.
+            Nenhum projeto de formação cadastrado ainda. Volte em breve.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
