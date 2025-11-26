@@ -12,11 +12,26 @@ interface CourseCardProps {
 
 const MAX_DESCRIPTION_LENGTH = 260;
 
+const stripLeadingTitle = (text: string, title: string) => {
+  const trimmedText = text.trim();
+  const trimmedTitle = title.trim();
+  const normalizedText = trimmedText.toLowerCase();
+  const normalizedTitle = trimmedTitle.toLowerCase();
+
+  if (normalizedText.startsWith(normalizedTitle)) {
+    const withoutTitle = trimmedText.slice(trimmedTitle.length).trimStart();
+    return withoutTitle.replace(/^[-:.,\s]+/, "").trimStart() || trimmedText;
+  }
+
+  return trimmedText;
+};
+
 const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => {
-  const isLong = description.length > MAX_DESCRIPTION_LENGTH;
+  const cleanedDescription = stripLeadingTitle(description, title);
+  const isLong = cleanedDescription.length > MAX_DESCRIPTION_LENGTH;
   const shortDescription = isLong
-    ? `${description.slice(0, MAX_DESCRIPTION_LENGTH).trimEnd()}...`
-    : description;
+    ? `${cleanedDescription.slice(0, MAX_DESCRIPTION_LENGTH).trimEnd()}...`
+    : cleanedDescription;
 
   return (
     <Card className="bg-gradient-card border-border/50 hover:shadow-gold transition-all duration-300 hover:scale-105 group overflow-hidden">

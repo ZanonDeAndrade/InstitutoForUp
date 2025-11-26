@@ -98,7 +98,6 @@ const cafeCultural = {
   name: "Café Cultural",
   quote: undefined,
   descriptionLines: [
-    "CAFÉ CULTURAL",
     "Um programa aberto e gratuito desenhado para elevar o humanismo, a autoestima e a dignidade humana, reacendendo o prazer de viver em direção à autorrealização e ao sucesso na própria vida.",
     "",
     "O Poder da Reflexão e do Legado",
