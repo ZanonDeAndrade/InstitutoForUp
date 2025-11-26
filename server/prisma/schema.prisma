@@ -42,3 +42,15 @@ model News {
 
   @@index([status, publishedAt])
 }
+
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  source      String?
+  message     String?
+  course      String?
+  submittedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}

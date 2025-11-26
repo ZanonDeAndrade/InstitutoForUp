@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { leadSourceOptions } from "@/constants/leadSources";
+import { leadApi } from "@/services/leadApi";
 
 interface CourseFormFieldsConfig {
   name: boolean;
@@ -50,8 +51,9 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
     source: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const missingRequired =
@@ -77,23 +79,37 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
       submittedAt: new Date().toISOString(),
     };
 
+    setSubmitting(true);
     try {
-      const existing =
-        typeof window !== "undefined" ? window.localStorage.getItem("forup_leads") : null;
-      const parsed: Lead[] = existing ? JSON.parse(existing) : [];
-      const updated = [...parsed, newLead];
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("forup_leads", JSON.stringify(updated));
+      await leadApi.create({
+        name: newLead.name,
+        email: newLead.email,
+        phone: newLead.phone,
+        source: newLead.source,
+        message: newLead.message,
+        course: newLead.course,
+      });
+
+      try {
+        const existing =
+          typeof window !== "undefined" ? window.localStorage.getItem("forup_leads") : null;
+        const parsed: Lead[] = existing ? JSON.parse(existing) : [];
+        const updated = [...parsed, newLead];
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("forup_leads", JSON.stringify(updated));
+        }
+      } catch (error) {
+        console.error("Erro ao salvar o lead localmente", error);
       }
+
+      toast.success("Interesse registrado com sucesso! Entraremos em contato em breve.");
+      setFormData({ name: "", email: "", phone: "", source: "", message: "" });
     } catch (error) {
-      console.error("Erro ao salvar o lead localmente", error);
+      console.error("Erro ao enviar lead para o backend", error);
+      toast.error("Não foi possível enviar seu interesse agora. Tente novamente em instantes.");
+    } finally {
+      setSubmitting(false);
     }
-
-    console.log("Formulário enviado:", newLead);
-
-    toast.success("Interesse registrado com sucesso! Entraremos em contato em breve.");
-
-    setFormData({ name: "", email: "", phone: "", source: "", message: "" });
   };
 
   return (
@@ -196,8 +212,8 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
           </div>
         )}
 
-        <Button type="submit" variant="hero" size="lg" className="w-full">
-          Tenho Interesse
+        <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+          {submitting ? "Enviando..." : "Tenho Interesse"}
         </Button>
       </form>
     </div>
