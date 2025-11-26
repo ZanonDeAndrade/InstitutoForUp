@@ -14,11 +14,17 @@ const FRIENDLY_COURSE_ROUTES: Record<string, string> = {
   "criterios-valores": "/criterios-valores",
   "performando-liderancas": "/performando-liderancas",
   "jovens-lideres": "/jovens-lideres",
-  "criatividade-empresarial": "/criatividade-empresarial",
+  "valores-humanos": "/curso/valores-humanos",
   "cafe-cultural": "/cafe-cultural",
 };
 
 const FALLBACK_COURSES: LandingCourse[] = [
+  {
+    title: "Valores Humanos: Base para a Autorrealização (VH)",
+    description:
+      "Construa uma fundação sólida em valores universais para performar liderança, resultado e criatividade com propósito.",
+    link: "/curso/valores-humanos",
+  },
   {
     title: "Café Cultural",
     description:
@@ -41,7 +47,12 @@ const Courses = () => {
     const load = async () => {
       try {
         const remote = await courseApi.list();
-        const merged = mergeWithFallback(remote.map(toLandingCourse));
+        const filtered = remote.filter(
+          (course) =>
+            course.id !== "criatividade-empresarial" &&
+            course.name?.toLowerCase() !== "criatividade empresarial",
+        );
+        const merged = mergeWithFallback(filtered.map(toLandingCourse));
         setCourses(merged);
       } catch (error) {
         console.warn("Falha ao carregar cursos do backend.", error);

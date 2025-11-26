@@ -51,7 +51,7 @@ const About = () => {
                   <ul className="list-disc list-inside space-y-2">
                     <li>Valores humanos</li>
                     <li>Liderança e resultado</li>
-                    <li>Criatividade empresarial</li>
+                    <li>Autorrealização com base em valores (VH)</li>
                   </ul>
                   <div>
                     <p className="text-foreground font-semibold text-lg sm:text-xl md:text-2xl">Core business</p>

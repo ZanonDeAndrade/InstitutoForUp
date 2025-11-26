@@ -35,12 +35,79 @@ const normalizeKey = (course?: Pick<Course, "id" | "name">) => {
   return null;
 };
 
-const renderParagraphs = (text: string) => {
-  return text.split(/\n\s*\n/).map((paragraph, idx) => (
-    <p key={`${paragraph.slice(0, 20)}-${idx}`} className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center">
-      {paragraph}
-    </p>
-  ));
+const VH_HEADINGS = new Set([
+  "Propósito do Programa",
+  "Metodologia de Desenvolvimento e Alta Performance",
+  "A Quem se Destina",
+]);
+
+const renderParagraphs = (text: string, isValoresHumanos: boolean) => {
+  const blocks = text.split(/\n\s*\n/);
+
+  return blocks.map((block, idx) => {
+    const lines = block
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const firstLine = lines[0] ?? "";
+    const rest = lines.slice(1);
+    const allBullets = lines.every((line) => /^[-•●]/.test(line));
+    const isHeadingBlock = isValoresHumanos && VH_HEADINGS.has(firstLine);
+
+    // Lista simples (primeiro bloco) em formato de bullets
+    if (isValoresHumanos && allBullets) {
+      return (
+        <ul
+          key={`block-${idx}`}
+          className="text-lg md:text-xl text-muted-foreground leading-relaxed text-left space-y-2 list-disc list-inside"
+        >
+          {lines.map((line, liIndex) => (
+            <li key={`vh-li-${idx}-${liIndex}`}>{line.replace(/^[-•●]\s*/, "")}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    // Blocos com título + conteúdo
+    if (isHeadingBlock) {
+      const bulletLines = rest.filter((line) => /^[-•●]/.test(line));
+      const otherLines = rest.filter((line) => !/^[-•●]/.test(line));
+
+      return (
+        <div key={`block-${idx}`} className="space-y-3 text-left">
+          <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">
+            {firstLine}
+          </p>
+          {!!bulletLines.length && (
+            <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
+              {bulletLines.map((line, liIndex) => (
+                <li key={`vh-heading-li-${idx}-${liIndex}`}>{line.replace(/^[-•●]\s*/, "")}</li>
+              ))}
+            </ul>
+          )}
+          {otherLines.map((line, liIndex) => (
+            <p
+              key={`vh-heading-p-${idx}-${liIndex}`}
+              className="text-lg md:text-xl text-muted-foreground leading-relaxed whitespace-pre-line"
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+      );
+    }
+
+    // Fallback padrão
+    return (
+      <p
+        key={`block-${idx}`}
+        className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center whitespace-pre-line"
+      >
+        {block}
+      </p>
+    );
+  });
 };
 
 const DynamicCourse = () => {
@@ -77,6 +144,9 @@ const DynamicCourse = () => {
   const whatsappKey = useMemo(() => normalizeKey(course ?? undefined), [course]);
   const whatsappConfig = whatsappKey ? WHATSAPP_GROUPS[whatsappKey] : null;
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const isValoresHumanos =
+    (course?.id?.toLowerCase() ?? "") === "valores-humanos" ||
+    (course?.name?.toLowerCase() ?? "").includes("valores humanos");
 
   useEffect(() => {
     setShowFullDesc(false);
@@ -133,6 +203,13 @@ const DynamicCourse = () => {
               {course.name}
             </h1>
             <div className="w-24 h-1 bg-gradient-gold mx-auto mb-8" />
+            {isValoresHumanos && (
+              <div className="mt-6 bg-secondary/40 border border-border/60 rounded-2xl px-6 py-4 inline-block shadow-card">
+                <p className="text-lg md:text-xl text-muted-foreground italic">
+                  “O resultado tangível, depende dos valores intangíveis.” (U.M.)
+                </p>
+              </div>
+            )}
           </div>
 
           {course.images && course.images.length > 0 && (
@@ -143,7 +220,7 @@ const DynamicCourse = () => {
 
           {descriptionContent && (
             <div className="bg-card rounded-2xl shadow-card p-8 md:p-12 mb-12 animate-fade-in-delay space-y-4">
-              {renderParagraphs(descriptionContent)}
+              {renderParagraphs(descriptionContent, isValoresHumanos)}
               {whatsappConfig && (
                 <div className="mt-2 text-center">
                   <button

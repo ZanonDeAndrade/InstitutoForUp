@@ -10,7 +10,14 @@ interface CourseCardProps {
   imageUrl?: string;
 }
 
+const MAX_DESCRIPTION_LENGTH = 260;
+
 const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => {
+  const isLong = description.length > MAX_DESCRIPTION_LENGTH;
+  const shortDescription = isLong
+    ? `${description.slice(0, MAX_DESCRIPTION_LENGTH).trimEnd()}...`
+    : description;
+
   return (
     <Card className="bg-gradient-card border-border/50 hover:shadow-gold transition-all duration-300 hover:scale-105 group overflow-hidden">
       {imageUrl && (
@@ -30,7 +37,15 @@ const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => 
       </CardHeader>
       <CardContent>
         <CardDescription className="text-muted-foreground text-base leading-relaxed">
-          {description}
+          {shortDescription}{" "}
+          {isLong && (
+            <Link
+              to={link}
+              className="text-primary font-semibold hover:text-primary/80 underline underline-offset-4"
+            >
+              Ver mais
+            </Link>
+          )}
         </CardDescription>
       </CardContent>
       <CardFooter>
