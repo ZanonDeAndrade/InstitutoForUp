@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const storage_1 = require("../config/storage");
+const newsController_1 = require("../controllers/newsController");
+const router = (0, express_1.Router)();
+const uploadNewsImage = (0, storage_1.createUploadMiddleware)("news");
+router.get("/", newsController_1.newsController.list);
+router.get("/:slug", newsController_1.newsController.getBySlug);
+router.post("/", uploadNewsImage.single("image"), newsController_1.newsController.create);
+router.put("/:id", uploadNewsImage.single("image"), newsController_1.newsController.update);
+router.delete("/:id", newsController_1.newsController.delete);
+exports.default = router;
