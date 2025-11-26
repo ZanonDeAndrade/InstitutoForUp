@@ -36,7 +36,7 @@ const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <CardDescription className="text-muted-foreground text-base leading-relaxed">
+        <CardDescription className="text-muted-foreground text-base leading-relaxed text-justify">
           {shortDescription}{" "}
           {isLong && (
             <Link

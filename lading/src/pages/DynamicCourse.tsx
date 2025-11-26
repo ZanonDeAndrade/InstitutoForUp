@@ -79,7 +79,7 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
       return (
         <ul
           key={`block-${idx}`}
-          className="text-lg md:text-xl text-muted-foreground leading-relaxed text-left space-y-2 list-disc list-inside"
+          className="text-lg md:text-xl text-muted-foreground leading-relaxed text-left text-justify space-y-2 list-disc list-inside"
         >
           {lines.map((line, liIndex) => (
             <li key={`vh-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
@@ -95,19 +95,19 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
 
       return (
         <div key={`block-${idx}`} className="space-y-3 text-left">
-          <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">
+          <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed text-justify">
             {firstLine}
           </p>
           {otherLines.map((line, liIndex) => (
             <p
               key={`vh-heading-p-${idx}-${liIndex}`}
-              className="text-lg md:text-xl text-muted-foreground leading-relaxed whitespace-pre-line"
+              className="text-lg md:text-xl text-muted-foreground leading-relaxed text-justify whitespace-pre-line"
             >
               {cleanLine(line)}
             </p>
           ))}
           {!!bulletLines.length && (
-            <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed space-y-2 list-disc list-inside">
+            <ul className="text-lg md:text-xl text-muted-foreground leading-relaxed text-justify space-y-2 list-disc list-inside">
               {bulletLines.map((line, liIndex) => (
                 <li key={`vh-heading-li-${idx}-${liIndex}`}>{line.replace(/^[•●○]\s*/, "")}</li>
               ))}
@@ -121,7 +121,7 @@ const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; is
     return lines.map((line, lineIdx) => (
       <p
         key={`block-${idx}-line-${lineIdx}`}
-        className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center whitespace-pre-line"
+        className="text-lg md:text-xl text-muted-foreground leading-relaxed text-center text-justify whitespace-pre-line"
       >
         {cleanLine(line)}
       </p>
