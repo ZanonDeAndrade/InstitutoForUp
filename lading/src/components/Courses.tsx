@@ -16,6 +16,7 @@ const FRIENDLY_COURSE_ROUTES: Record<string, string> = {
   "jovens-lideres": "/jovens-lideres",
   "desenvolvimento-jovem-lider": "/curso/desenvolvimento-jovem-lider",
   "performando-lideranca-resultado": "/curso/performando-lideranca-resultado",
+  "jornada-lideristica": "/curso/jornada-lideristica",
   "valores-humanos": "/curso/valores-humanos",
   "cafe-cultural": "/cafe-cultural",
 };
@@ -38,6 +39,12 @@ const FALLBACK_COURSES: LandingCourse[] = [
     description:
       "Imersão para líderes que buscam maestria em resultado, gestão e pessoas. Aulas ao vivo, imersões presenciais e consultoria estratégica para evolução contínua.",
     link: "/curso/performando-lideranca-resultado",
+  },
+  {
+    title: "Jornada Liderística: Critério Organísmico, Intuição e Racionalidade",
+    description:
+      "Prática diária para decisões e escolhas ótimas, unindo critério organísmico, racionalidade e intuição, com aulas dialogadas, dinâmicas e imersão.",
+    link: "/curso/jornada-lideristica",
   },
   {
     title: "Café Cultural",

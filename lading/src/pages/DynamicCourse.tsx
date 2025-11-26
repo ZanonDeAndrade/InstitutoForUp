@@ -50,6 +50,12 @@ const PLR_HEADINGS = new Set([
   "O Resgate do Mestre Interior",
   "Estrutura e Dinâmica de Alto Nível",
 ]);
+const JL_HEADINGS = new Set([
+  "Por que a Jornada Liderística?",
+  "Propósito e Temáticas",
+  "Metodologia e Coordenação",
+  "Datas e Locais",
+]);
 
 const renderParagraphs = (text: string, options?: { headingSet?: Set<string>; isValoresHumanos?: boolean }) => {
   const bulletRegex = /^[•●○]/;
@@ -166,7 +172,18 @@ const DynamicCourse = () => {
   const isPlr =
     (course?.id?.toLowerCase() ?? "") === "performando-lideranca-resultado" ||
     (course?.name?.toLowerCase() ?? "").includes("performando liderança e resultado");
-  const headingSet = isValoresHumanos ? VH_HEADINGS : isJovemLider ? DJL_HEADINGS : isPlr ? PLR_HEADINGS : undefined;
+  const isJornadaLideristica =
+    (course?.id?.toLowerCase() ?? "") === "jornada-lideristica" ||
+    (course?.name?.toLowerCase() ?? "").includes("jornada liderística");
+  const headingSet = isValoresHumanos
+    ? VH_HEADINGS
+    : isJovemLider
+      ? DJL_HEADINGS
+      : isPlr
+        ? PLR_HEADINGS
+        : isJornadaLideristica
+          ? JL_HEADINGS
+          : undefined;
   const quoteFromFields = typeof (course?.fields as Record<string, unknown> | undefined)?.quote === "string"
     ? String((course?.fields as Record<string, unknown> | undefined)?.quote)
     : null;
