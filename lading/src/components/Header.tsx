@@ -6,7 +6,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import logo from "@/assets/Logo.jpg";
+import logo from "@/assets/Logo.png";
 
 const Header = () => {
   const navLinks = [
@@ -23,14 +23,12 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 rounded-lg overflow-hidden shadow-gold ring-1 ring-border/60 bg-secondary/40 flex items-center justify-center group-hover:shadow-xl transition-all duration-300">
-              <img
-                src={logo}
-                alt="Instituto FOR UP Education"
-                className="h-full w-full object-contain"
-                loading="lazy"
-              />
-            </div>
+            <img
+              src={logo}
+              alt="Instituto FOR UP Education"
+              className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
             <div className="hidden md:block">
               <h1 className="text-xl font-display font-bold text-foreground leading-tight">
                 Instituto FOR UP
