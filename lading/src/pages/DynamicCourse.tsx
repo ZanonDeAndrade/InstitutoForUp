@@ -5,7 +5,6 @@ import CourseLayout from "@/components/CourseLayout";
 import { Button } from "@/components/ui/button";
 import CourseForm from "@/components/CourseForm";
 import CourseImageCarousel from "@/components/CourseImageCarousel";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import { courseApi } from "@/services/courseApi";
 import { Course } from "@/types/course";
 
@@ -297,11 +296,7 @@ const DynamicCourse = () => {
             </div>
           ) : (
             <>
-              <div className="flex justify-center mb-10 animate-fade-in">
-                <WhatsAppButton courseName={course.name} variant="hero" label="Falar no WhatsApp" />
-              </div>
-
-              <div className="animate-slide-up">
+              <div className="animate-slide-up mt-10">
                 <CourseForm courseName={course.name} fields={course.fields ?? fallbackFields} />
               </div>
             </>

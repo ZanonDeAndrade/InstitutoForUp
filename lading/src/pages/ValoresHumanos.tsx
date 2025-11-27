@@ -1,6 +1,5 @@
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 const ValoresHumanos = () => {
   return (
@@ -71,10 +70,6 @@ const ValoresHumanos = () => {
                 <li>Quem está pronto para olhar para dentro, construir sua base de valores e conquistar resultados com propósito.</li>
               </ul>
             </div>
-          </div>
-
-          <div className="flex justify-center gap-4 mt-10 animate-fade-in">
-            <WhatsAppButton courseName="Valores Humanos: Base para a Autorrealização (VH)" variant="hero" label="Falar no WhatsApp" />
           </div>
 
           {/* Form */}

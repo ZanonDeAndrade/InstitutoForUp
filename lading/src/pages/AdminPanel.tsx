@@ -309,7 +309,7 @@ const AdminPanel = () => {
   return (
     <CourseLayout>
       <div className="container mx-auto px-4 py-20">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 text-gradient-gold">
               Painel do Administrador
@@ -502,12 +502,16 @@ const AdminPanel = () => {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue={courses[0]?.id}>
-                <TabsList className="mb-4">
-                  {courses.map((course) => {
-                    const count = leads.filter((lead) => lead.course === course.name).length;
-                    return (
-                      <TabsTrigger key={course.id} value={course.id}>
-                        {course.name}
+              <TabsList className="mb-4 grid h-auto w-full grid-cols-1 gap-3 rounded-xl bg-secondary/30 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {courses.map((course) => {
+                  const count = leads.filter((lead) => lead.course === course.name).length;
+                  return (
+                    <TabsTrigger
+                      key={course.id}
+                      value={course.id}
+                      className="flex h-full w-full items-start justify-between gap-2 whitespace-normal break-words text-left leading-snug min-h-[64px] text-sm md:text-base px-4 py-3 rounded-lg border border-border/60 bg-card/60 data-[state=active]:border-primary/50 data-[state=active]:bg-primary/10"
+                    >
+                      {course.name}
                         {count > 0 && (
                           <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-2 text-xs font-semibold text-primary">
                             {count}
@@ -523,10 +527,7 @@ const AdminPanel = () => {
 
                   return (
                     <TabsContent key={course.id} value={course.id}>
-                      <div className="flex items-center justify-between gap-3 mb-4">
-                        {course.description && (
-                          <p className="text-sm text-muted-foreground">{course.description}</p>
-                        )}
+                      <div className="flex justify-end mb-4">
                         <Button
                           variant="destructive"
                           size="sm"

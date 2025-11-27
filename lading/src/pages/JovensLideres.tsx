@@ -1,6 +1,5 @@
 import CourseLayout from "@/components/CourseLayout";
 import CourseForm from "@/components/CourseForm";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 const JovensLideres = () => {
   return (
@@ -22,12 +21,8 @@ const JovensLideres = () => {
             </p>
           </div>
 
-          <div className="flex justify-center mb-10 animate-fade-in">
-            <WhatsAppButton courseName="Jovens Líderes" variant="hero" label="Falar no WhatsApp" />
-          </div>
-
           {/* Form */}
-          <div className="animate-slide-up">
+          <div className="animate-slide-up mt-10">
             <CourseForm courseName="Jovens Líderes" />
           </div>
         </div>
