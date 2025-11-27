@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { leadSourceOptions } from "@/constants/leadSources";
 import { leadApi } from "@/services/leadApi";
 
@@ -44,6 +45,8 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
     source: true,
   };
 
+  type FormField = "name" | "email" | "phone" | "source" | "message";
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -52,6 +55,12 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
     message: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const updateField = (field: FormField, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setSubmitted(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +88,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
       submittedAt: new Date().toISOString(),
     };
 
+    setSubmitted(false);
     setSubmitting(true);
     try {
       await leadApi.create({
@@ -104,6 +114,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
 
       toast.success("Interesse registrado com sucesso! Entraremos em contato em breve.");
       setFormData({ name: "", email: "", phone: "", source: "", message: "" });
+      setSubmitted(true);
     } catch (error) {
       console.error("Erro ao enviar lead para o backend", error);
       toast.error("Não foi possível enviar seu interesse agora. Tente novamente em instantes.");
@@ -128,7 +139,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
               id="name"
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => updateField("name", e.target.value)}
               className="mt-2 bg-secondary border-border text-foreground"
               placeholder="Seu nome completo"
               required
@@ -145,7 +156,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => updateField("email", e.target.value)}
               className="mt-2 bg-secondary border-border text-foreground"
               placeholder="seu@email.com"
               required
@@ -162,7 +173,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
               id="phone"
               type="tel"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) => updateField("phone", e.target.value)}
               className="mt-2 bg-secondary border-border text-foreground"
               placeholder="(00) 00000-0000"
               required
@@ -178,7 +189,7 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
             id="message"
             value={formData.message}
             maxLength={500}
-            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            onChange={(e) => updateField("message", e.target.value)}
             className="mt-2 bg-secondary border-border text-foreground"
             placeholder="Escreva suas dúvidas ou observações (até 500 caracteres)"
             aria-describedby="message-help"
@@ -190,17 +201,17 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
 
         {effectiveFields.source && (
           <div>
-            <Label htmlFor="source" className="text-foreground">
-              Como chegou até aqui? *
-            </Label>
-            <Select
-              value={formData.source}
-              onValueChange={(value) => setFormData({ ...formData, source: value })}
-              required
-            >
-              <SelectTrigger className="mt-2 bg-secondary border-border text-foreground">
-                <SelectValue placeholder="Selecione uma opção" />
-              </SelectTrigger>
+          <Label htmlFor="source" className="text-foreground">
+            Como chegou até aqui? *
+          </Label>
+          <Select
+            value={formData.source}
+            onValueChange={(value) => updateField("source", value)}
+            required
+          >
+            <SelectTrigger className="mt-2 bg-secondary border-border text-foreground">
+              <SelectValue placeholder="Selecione uma opção" />
+            </SelectTrigger>
               <SelectContent>
                 {leadSourceOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
@@ -212,9 +223,21 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
           </div>
         )}
 
-        <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
-          {submitting ? "Enviando..." : "Tenho Interesse"}
-        </Button>
+        <div className="space-y-3">
+          {submitted ? (
+            <WhatsAppButton
+              courseName={courseName}
+              variant="hero"
+              size="lg"
+              className="w-full justify-center gap-2"
+              label="Falar no WhatsApp"
+            />
+          ) : (
+            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? "Enviando..." : "Tenho Interesse"}
+            </Button>
+          )}
+        </div>
       </form>
     </div>
   );
