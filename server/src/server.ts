@@ -5,6 +5,7 @@ import cors from "cors";
 import courseRoutes from "./routes/courseRoutes";
 import newsRoutes from "./routes/newsRoutes";
 import leadRoutes from "./routes/leadRoutes";
+import authRoutes from "./routes/authRoutes";
 import { reqLogger } from "./middleware/reqLogger";
 import { downloadFromStorage } from "./config/storage";
 
@@ -63,6 +64,7 @@ app.get("/api/images/:storageKey(*)", async (req, res) => {
 app.use("/api/courses", courseRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/leads", leadRoutes);
+app.use("/api/auth", authRoutes);
 
 // Tratamento de erro geral
 app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

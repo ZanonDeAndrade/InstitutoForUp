@@ -16,13 +16,13 @@ const Contact = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <a 
-              href="mailto:contato@forupeducation.com.br" 
+              href="mailto:Stefanie@uenoprofit.com.br" 
               className="flex flex-col items-center p-6 bg-secondary/50 rounded-xl hover:bg-secondary transition-all duration-300 group w-full"
             >
               <Mail className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground text-center">E-mail</span>
               <span className="text-foreground font-medium text-center mt-1 whitespace-normal md:whitespace-nowrap">
-                contato@forupeducation.com.br
+                Stefanie@uenoprofit.com.br
               </span>
             </a>
 

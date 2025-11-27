@@ -17,6 +17,8 @@ import NewsDetails from "./pages/NewsDetails";
 import NewsList from "./pages/NewsList";
 import NewsCreate from "./pages/NewsCreate";
 import NewsEdit from "./pages/NewsEdit";
+import AdminLogin from "./pages/AdminLogin";
+import RequireAdmin from "./components/RequireAdmin";
 
 const queryClient = new QueryClient();
 
@@ -36,10 +38,39 @@ const App = () => (
           <Route path="/curso/:courseId" element={<DynamicCourse />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:slug" element={<NewsDetails />} />
-          <Route path="/admin/news" element={<NewsList />} />
-          <Route path="/admin/news/create" element={<NewsCreate />} />
-          <Route path="/admin/news/:slug/edit" element={<NewsEdit />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin/news"
+            element={
+              <RequireAdmin>
+                <NewsList />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/news/create"
+            element={
+              <RequireAdmin>
+                <NewsCreate />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/news/:slug/edit"
+            element={
+              <RequireAdmin>
+                <NewsEdit />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminPanel />
+              </RequireAdmin>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
