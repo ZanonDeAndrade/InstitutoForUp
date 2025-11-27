@@ -10,6 +10,7 @@ const cors_1 = __importDefault(require("cors"));
 const courseRoutes_1 = __importDefault(require("./routes/courseRoutes"));
 const newsRoutes_1 = __importDefault(require("./routes/newsRoutes"));
 const leadRoutes_1 = __importDefault(require("./routes/leadRoutes"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const reqLogger_1 = require("./middleware/reqLogger");
 const storage_1 = require("./config/storage");
 const app = (0, express_1.default)();
@@ -57,6 +58,7 @@ app.get("/api/images/:storageKey(*)", async (req, res) => {
 app.use("/api/courses", courseRoutes_1.default);
 app.use("/api/news", newsRoutes_1.default);
 app.use("/api/leads", leadRoutes_1.default);
+app.use("/api/auth", authRoutes_1.default);
 // Tratamento de erro geral
 app.use((error, _req, res, _next) => {
     console.error("Internal error:", error);
