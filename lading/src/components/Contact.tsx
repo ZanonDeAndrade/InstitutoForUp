@@ -22,7 +22,7 @@ const Contact = () => {
               <Mail className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <span className="text-sm text-muted-foreground text-center">E-mail</span>
               <span className="text-foreground font-medium text-center mt-1 whitespace-normal md:whitespace-nowrap">
-                Stefanie@uenoprofit.com.br
+                contato@iforup.com
               </span>
             </a>
 
