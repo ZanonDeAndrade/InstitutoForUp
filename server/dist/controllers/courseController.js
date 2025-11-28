@@ -21,7 +21,7 @@ exports.courseController = {
             return res.status(404).json({ message: "Curso não encontrado" });
         }
         return res.json(course);
-    },
+    }, //adwasd
     upsert: async (req, res) => {
         const parsed = upsertSchema.safeParse(req.body);
         if (!parsed.success) {
