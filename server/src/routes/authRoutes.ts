@@ -5,7 +5,7 @@ const router = Router();
 
 router.post("/login", (req, res) => {
   const password = String(req.body?.password ?? "");
-  const adminPassword = process.env.ADMIN_PASSWORD || "adminForUp!"; //senha
+  const adminPassword = "adminForUp!"; //senha
 
   if (!adminPassword) {
     return res.status(500).json({ message: "ADMIN_PASSWORD not configured on server" });
