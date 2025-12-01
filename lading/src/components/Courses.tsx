@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { courseApi } from "@/services/courseApi";
 import { Course } from "@/types/course";
 import CourseCard from "./CourseCard";
@@ -9,6 +10,9 @@ interface LandingCourse {
   link: string;
   imageUrl?: string;
 }
+
+const YEARS = [2025, 2026] as const;
+type Year = (typeof YEARS)[number];
 
 const FRIENDLY_COURSE_ROUTES: Record<string, string> = {
   "criterios-valores": "/criterios-valores",
@@ -56,6 +60,7 @@ const FALLBACK_COURSES: LandingCourse[] = [
 
 const Courses = () => {
   const [courses, setCourses] = useState<LandingCourse[]>([]);
+  const [selectedYear, setSelectedYear] = useState<Year>(2025);
 
   const toLandingCourse = (course: Course): LandingCourse => ({
     title: course.name,
@@ -90,6 +95,10 @@ const Courses = () => {
     return Array.from(map.values());
   };
 
+  const isJornadaCourse = (course: LandingCourse) => course.link.includes("jornada-lideristica");
+  const getCourseYear = (course: LandingCourse): Year => (isJornadaCourse(course) ? 2025 : 2026);
+  const filteredCourses = courses.filter((course) => getCourseYear(course) === selectedYear);
+
   return (
     <section id="cursos" className="py-20 px-4">
       <div className="container mx-auto">
@@ -105,13 +114,45 @@ const Courses = () => {
             Nenhum projeto de formação cadastrado ainda. Volte em breve.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {courses.map((course, index) => (
-              <div key={course.title} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CourseCard {...course} />
+          <>
+            <div className="flex items-center justify-center gap-4 mb-10">
+              {YEARS.map((year) => {
+                const isActive = selectedYear === year;
+                return (
+                  <Button
+                    key={year}
+                    variant="outline"
+                    className={`rounded-full text-lg px-6 py-3 border-2 transition-all ${
+                      isActive
+                        ? "bg-gradient-gold text-primary-foreground border-transparent shadow-gold hover:scale-105"
+                        : "bg-background/70 border-border text-foreground hover:-translate-y-0.5"
+                    }`}
+                    onClick={() => setSelectedYear(year)}
+                  >
+                    {year}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {filteredCourses.length === 0 ? (
+              <p className="text-center text-muted-foreground mt-8">
+                Nenhum curso programado para {selectedYear} no momento.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                {filteredCourses.map((course, index) => (
+                  <div
+                    key={course.title}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <CourseCard {...course} />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>
