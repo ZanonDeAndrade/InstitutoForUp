@@ -20,7 +20,7 @@ const Hero = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-display font-bold text-foreground mb-6 animate-fade-in leading-tight">
             Formando Pessoas para o{" "}
-            <span className="text-gradient-gold">Futuro</span>
+            <span className="text-gradient-gold">Hoje</span>
             <br />
             com Consciência e Propósito
           </h1>

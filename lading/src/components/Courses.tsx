@@ -94,7 +94,7 @@ const Courses = () => {
     <section id="cursos" className="py-20 px-4">
       <div className="container mx-auto">
         <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-4 text-foreground">
-          Nossos Projetos de Formação
+          Nossa Programação
         </h2>
         <p className="text-center text-muted-foreground mb-12 text-lg max-w-2xl mx-auto">
           Descubra o programa ideal para sua jornada de desenvolvimento pessoal e profissional
