@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { courseApi } from "@/services/courseApi";
 import { Course } from "@/types/course";
@@ -61,6 +62,7 @@ const FALLBACK_COURSES: LandingCourse[] = [
 const Courses = () => {
   const [courses, setCourses] = useState<LandingCourse[]>([]);
   const [selectedYear, setSelectedYear] = useState<Year>(2025);
+  const location = useLocation();
 
   const toLandingCourse = (course: Course): LandingCourse => ({
     title: course.name,
@@ -88,6 +90,13 @@ const Courses = () => {
     load();
   }, []);
 
+  useEffect(() => {
+    const hashYear = YEARS.find((year) => location.hash.includes(year.toString()));
+    if (hashYear && hashYear !== selectedYear) {
+      setSelectedYear(hashYear);
+    }
+  }, [location.hash, selectedYear]);
+
   const mergeWithFallback = (remote: LandingCourse[]) => {
     const map = new Map<string, LandingCourse>();
     FALLBACK_COURSES.forEach((course) => map.set(course.link, course));
@@ -100,7 +109,15 @@ const Courses = () => {
   const filteredCourses = courses.filter((course) => getCourseYear(course) === selectedYear);
 
   return (
-    <section id="cursos" className="py-20 px-4">
+    <section id="cursos" className="relative py-20 px-4">
+      {YEARS.map((year) => (
+        <span
+          key={year}
+          id={`cursos-${year}`}
+          className="absolute -top-24 h-px w-px opacity-0"
+          aria-hidden="true"
+        />
+      ))}
       <div className="container mx-auto">
         <h2 className="text-4xl md:text-5xl font-display font-bold text-center mb-4 text-foreground">
           Nossa Programação

@@ -1,21 +1,37 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/Logo.png";
 
+type NavLink = {
+  id: string;
+  label: string;
+  to?: string;
+  children?: { label: string; to: string }[];
+};
+
+const PROGRAM_YEARS = [2025, 2026] as const;
+
+const navLinks: NavLink[] = [
+  { id: "home", to: "/", label: "Home" },
+  { id: "sobre", to: "/#sobre", label: "Sobre nós" },
+  {
+    id: "programacao",
+    label: "Programação",
+    children: PROGRAM_YEARS.map((year) => ({
+      to: `/#cursos-${year}`,
+      label: `Programação ${year}`,
+    })),
+  },
+  { id: "blog", to: "/news", label: "Blog" },
+  { id: "contato", to: "/#contato", label: "Contato" },
+];
+
 const Header = () => {
-  const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/#sobre", label: "Sobre nós" },
-    { to: "/#cursos", label: "Programação" },
-    { to: "/news", label: "Blog" },
-    { to: "/#contato", label: "Contato" },
-  ];
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -39,15 +55,51 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.to}
-                href={link.to}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.children ? (
+                <div
+                  key={link.id}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(link.id)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-foreground hover:text-primary transition-colors font-medium"
+                    onClick={() => setOpenDropdown((current) => (current === link.id ? null : link.id))}
+                  >
+                    {link.label}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${
+                        openDropdown === link.id ? "-scale-y-100" : ""
+                      }`}
+                    />
+                  </button>
+                  {openDropdown === link.id && (
+                    <div className="absolute left-0 top-full z-20 w-48 rounded-xl border border-border bg-popover shadow-lg py-2">
+                      {link.children.map((child) => (
+                        <a
+                          key={child.to}
+                          href={child.to}
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                          onClick={() => setOpenDropdown(null)}
+                        >
+                          {child.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <a
+                  key={link.id}
+                  href={link.to}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  {link.label}
+                </a>
+              ),
+            )}
           </nav>
 
           {/* Mobile Navigation */}
@@ -59,15 +111,50 @@ const Header = () => {
             </SheetTrigger>
             <SheetContent>
               <nav className="flex flex-col space-y-4 mt-8">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.to}
-                    href={link.to}
-                    className="text-lg font-medium text-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {navLinks.map((link) =>
+                  link.children ? (
+                    <div key={link.id} className="flex flex-col space-y-2">
+                      <button
+                        type="button"
+                        className="flex items-center justify-between text-lg font-medium text-foreground hover:text-primary transition-colors"
+                        onClick={() =>
+                          setOpenMobileDropdown((current) =>
+                            current === link.id ? null : link.id,
+                          )
+                        }
+                      >
+                        {link.label}
+                        <ChevronDown
+                          className={`h-5 w-5 transition-transform ${
+                            openMobileDropdown === link.id ? "-scale-y-100" : ""
+                          }`}
+                        />
+                      </button>
+                      {openMobileDropdown === link.id && (
+                        <div className="ml-4 flex flex-col space-y-2 border-l border-border pl-3">
+                          {link.children.map((child) => (
+                            <a
+                              key={child.to}
+                              href={child.to}
+                              className="text-base font-medium text-foreground hover:text-primary transition-colors"
+                              onClick={() => setOpenMobileDropdown(null)}
+                            >
+                              {child.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <a
+                      key={link.id}
+                      href={link.to}
+                      className="text-lg font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ),
+                )}
               </nav>
             </SheetContent>
           </Sheet>
