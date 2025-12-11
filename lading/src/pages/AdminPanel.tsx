@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import CourseImagesManager from "@/components/CourseImagesManager";
 import { courseApi } from "@/services/courseApi";
 import { Course, CourseFieldsConfig, CourseImage } from "@/types/course";
+import { PILLARS, PillarId } from "@/constants/pillars";
 import { toast } from "sonner";
 import { leadSourceLabel } from "@/constants/leadSources";
 import EllipsisText from "@/components/EllipsisText";
@@ -57,6 +58,7 @@ const AdminPanel = () => {
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [newCourseName, setNewCourseName] = useState("");
   const [newCourseDescription, setNewCourseDescription] = useState("");
+  const [newCoursePillar, setNewCoursePillar] = useState<PillarId>(PILLARS[0].id);
   const [newCourseFields] = useState<CourseFieldsConfig>({
     name: true,
     email: true,
@@ -107,6 +109,7 @@ const AdminPanel = () => {
       ...course,
       images: course.images ?? [],
       fields: (course.fields as CourseFieldsConfig | undefined) ?? defaultFields,
+      pillar: (course.pillar as PillarId | undefined) ?? PILLARS[0].id,
     });
 
     const loadCourses = async () => {
@@ -146,6 +149,7 @@ const AdminPanel = () => {
           name: trimmedName,
           description,
           fields: newCourseFields,
+          pillar: newCoursePillar,
         });
         setCourses((prev) => prev.map((course) => (course.id === editingCourseId ? updated : course)));
         toast.success("Curso atualizado.");
@@ -156,6 +160,7 @@ const AdminPanel = () => {
           name: trimmedName,
           description,
           fields: newCourseFields,
+          pillar: newCoursePillar,
         });
 
         let images: CourseImage[] = [];
@@ -167,6 +172,7 @@ const AdminPanel = () => {
           ...created,
           images: images.length ? images : created.images ?? [],
           fields: created.fields ?? newCourseFields,
+          pillar: (created.pillar as PillarId | undefined) ?? newCoursePillar,
         };
 
         setCourses((prev) => [...prev, newCourse]);
@@ -176,6 +182,7 @@ const AdminPanel = () => {
       setNewCourseName("");
       setNewCourseDescription("");
       setEditingCourseId(null);
+      setNewCoursePillar(PILLARS[0].id);
       setNewCourseFiles([]);
     } catch (error) {
       console.error(error);
@@ -189,6 +196,7 @@ const AdminPanel = () => {
     setEditingCourseId(course.id);
     setNewCourseName(course.name);
     setNewCourseDescription(course.description ?? "");
+    setNewCoursePillar((course.pillar as PillarId | undefined) ?? PILLARS[0].id);
   };
 
   const handleSelectNewCourseFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,6 +219,7 @@ const AdminPanel = () => {
     setEditingCourseId(null);
     setNewCourseName("");
     setNewCourseDescription("");
+    setNewCoursePillar(PILLARS[0].id);
     setNewCourseFiles([]);
   };
 
@@ -296,6 +305,7 @@ const AdminPanel = () => {
       setEditingCourseId(null);
       setNewCourseName("");
       setNewCourseDescription("");
+      setNewCoursePillar(PILLARS[0].id);
     }
 
     setDeleteDialogOpen(false);
@@ -307,7 +317,7 @@ const AdminPanel = () => {
   };
 
   return (
-    <CourseLayout>
+    <CourseLayout minimalHeader>
       <div className="container mx-auto px-4 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -342,6 +352,21 @@ const AdminPanel = () => {
                       placeholder="Ex.: Liderança Humanizada"
                       className="mt-2"
                     />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Label htmlFor="course-pillar">Pilar de formação</Label>
+                    <select
+                      id="course-pillar"
+                      className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={newCoursePillar}
+                      onChange={(event) => setNewCoursePillar(event.target.value as PillarId)}
+                    >
+                      {PILLARS.map((pillar) => (
+                        <option key={pillar.id} value={pillar.id}>
+                          {pillar.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="course-description">Descrição</Label>
@@ -408,44 +433,52 @@ const AdminPanel = () => {
                   {loadingCourses && (
                     <p className="text-sm text-muted-foreground">Carregando cursos...</p>
                   )}
-                  {courses.map((course) => (
-                    <div
-                      key={course.id}
-                      className="flex flex-col gap-4 rounded-lg border border-border/60 bg-secondary/20 px-4 py-4"
-                    >
-                      <div className="space-y-2">
-                        <p className="font-medium text-foreground">{course.name}</p>
-                        {course.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {course.description}
+                  {courses.map((course) => {
+                    const pillarLabel =
+                      PILLARS.find((pillar) => pillar.id === course.pillar)?.label ?? "Não definido";
+
+                    return (
+                      <div
+                        key={course.id}
+                        className="flex flex-col gap-4 rounded-lg border border-border/60 bg-secondary/20 px-4 py-4"
+                      >
+                        <div className="space-y-2">
+                          <p className="font-medium text-foreground">{course.name}</p>
+                          <p className="text-xs font-semibold text-muted-foreground">
+                            Pilar: <span className="text-foreground">{pillarLabel}</span>
                           </p>
-                        )}
-                        <CourseImagesManager
-                          courseId={course.id}
-                          images={course.images ?? []}
-                          onImagesChange={(images) => handleImagesChange(course.id, images)}
-                        />
+                          {course.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {course.description}
+                            </p>
+                          )}
+                          <CourseImagesManager
+                            courseId={course.id}
+                            images={course.images ?? []}
+                            onImagesChange={(images) => handleImagesChange(course.id, images)}
+                          />
+                        </div>
+                        <div className="flex gap-2 self-end md:self-auto">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditCourse(course)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleAskDeleteCourse(course)}
+                          >
+                            Excluir
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2 self-end md:self-auto">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCourse(course)}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleAskDeleteCourse(course)}
-                        >
-                          Excluir
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
               <AlertDialog

@@ -7,6 +7,7 @@ interface CourseCardProps {
   title: string;
   description: string;
   link: string;
+  years?: number[];
   imageUrl?: string;
 }
 
@@ -26,7 +27,7 @@ const stripLeadingTitle = (text: string, title: string) => {
   return trimmedText;
 };
 
-const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => {
+const CourseCard = ({ title, description, link, years, imageUrl }: CourseCardProps) => {
   const cleanedDescription = stripLeadingTitle(description, title);
   const isLong = cleanedDescription.length > MAX_DESCRIPTION_LENGTH;
   const shortDescription = isLong
@@ -46,6 +47,18 @@ const CourseCard = ({ title, description, link, imageUrl }: CourseCardProps) => 
         </div>
       )}
       <CardHeader>
+        {years?.length ? (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {years.map((year) => (
+              <span
+                key={year}
+                className="rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-foreground"
+              >
+                {year}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <CardTitle className="text-2xl font-display text-gradient-gold group-hover:scale-105 transition-transform">
           {title}
         </CardTitle>

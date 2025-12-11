@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { deleteStoredObject, getSignedUrl } from "../config/storage";
 import { StoredFile } from "../config/storage";
+import { PILLAR_BY_COURSE, PILLAR_IDS, PillarId } from "../constants/pillars";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,7 @@ export interface UpsertCoursePayload {
   name: string;
   description?: string;
   fields?: unknown;
+  pillar?: PillarId;
 }
 
 const parseFields = (fields: unknown) => {
@@ -50,6 +52,7 @@ export class CourseService {
         ...course,
         description: normalizeDescription(course.description),
         fields: parseFields(course.fields),
+        pillar: this.resolvePillar(course.id, course.pillar),
         images: await Promise.all(
           course.images.map(async (img) => ({
             ...img,
@@ -78,23 +81,29 @@ export class CourseService {
       ...course,
       description: normalizeDescription(course.description),
       fields: parseFields(course.fields),
+      pillar: this.resolvePillar(course.id, course.pillar),
       images,
     };
   }
 
   async upsert(payload: UpsertCoursePayload) {
     console.log("[svc] upsert", payload.id);
+    const existing = await prisma.course.findUnique({ where: { id: payload.id } });
+    const pillar = this.resolvePillar(payload.id, payload.pillar ?? existing?.pillar);
+
     return prisma.course.upsert({
       where: { id: payload.id },
       create: {
         id: payload.id,
         name: payload.name,
         description: payload.description,
+        pillar,
         fields: payload.fields ? JSON.stringify(payload.fields) : null,
       },
       update: {
         name: payload.name,
         description: payload.description,
+        pillar,
         fields: payload.fields ? JSON.stringify(payload.fields) : null,
       },
       include: { images: true },
@@ -145,6 +154,14 @@ export class CourseService {
     ]);
     await Promise.all(course.images.map((img) => img.storageKey && deleteStoredObject(img.storageKey)));
     console.log("[svc] course deleted", courseId);
+  }
+
+  private resolvePillar(courseId: string, pillar?: string | null): PillarId {
+    const normalized = pillar && PILLAR_IDS.includes(pillar as PillarId) ? (pillar as PillarId) : null;
+    const mapped = PILLAR_BY_COURSE[courseId];
+    if (mapped) return mapped;
+    if (normalized) return normalized;
+    return "valores-humanos";
   }
 }
 

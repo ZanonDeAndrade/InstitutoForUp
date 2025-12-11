@@ -33,7 +33,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <CourseLayout>
+    <CourseLayout minimalHeader>
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-md mx-auto">
           <Card className="bg-card shadow-card border border-border/60">

@@ -2,12 +2,20 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { courseService } from "../services/courseService";
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES, persistUploadedFiles } from "../config/storage";
+import { PILLAR_IDS, PillarId } from "../constants/pillars";
 
 const upsertSchema = z.object({
   id: z.string().min(1, "id é obrigatório"),
   name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().max(800).optional(),
   fields: z.any().optional(),
+  pillar: z
+    .string()
+    .optional()
+    .refine(
+      (value) => value === undefined || PILLAR_IDS.includes(value as PillarId),
+      "Pilar inválido",
+    ),
 });
 
 export const courseController = {
@@ -30,7 +38,10 @@ export const courseController = {
       return res.status(400).json({ message: "Dados inválidos", issues: parsed.error.flatten() });
     }
 
-    const course = await courseService.upsert(parsed.data);
+    const course = await courseService.upsert({
+      ...parsed.data,
+      pillar: parsed.data.pillar as PillarId | undefined,
+    });
     return res.status(201).json(course);
   },
 
