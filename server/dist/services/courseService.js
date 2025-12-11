@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.courseService = exports.CourseService = void 0;
 const client_1 = require("@prisma/client");
 const storage_1 = require("../config/storage");
+const pillars_1 = require("../constants/pillars");
 const prisma = new client_1.PrismaClient();
 const parseFields = (fields) => {
     if (typeof fields === "string") {
@@ -40,6 +41,7 @@ class CourseService {
             ...course,
             description: normalizeDescription(course.description),
             fields: parseFields(course.fields),
+            pillar: this.resolvePillar(course.id, course.pillar),
             images: await Promise.all(course.images.map(async (img) => ({
                 ...img,
                 url: this.proxyUrl(img.storageKey ?? img.url ?? "") ?? (await (0, storage_1.getSignedUrl)(img.storageKey ?? img.url ?? "")),
@@ -63,22 +65,27 @@ class CourseService {
             ...course,
             description: normalizeDescription(course.description),
             fields: parseFields(course.fields),
+            pillar: this.resolvePillar(course.id, course.pillar),
             images,
         };
     }
     async upsert(payload) {
         console.log("[svc] upsert", payload.id);
+        const existing = await prisma.course.findUnique({ where: { id: payload.id } });
+        const pillar = this.resolvePillar(payload.id, payload.pillar ?? existing?.pillar);
         return prisma.course.upsert({
             where: { id: payload.id },
             create: {
                 id: payload.id,
                 name: payload.name,
                 description: payload.description,
+                pillar,
                 fields: payload.fields ? JSON.stringify(payload.fields) : null,
             },
             update: {
                 name: payload.name,
                 description: payload.description,
+                pillar,
                 fields: payload.fields ? JSON.stringify(payload.fields) : null,
             },
             include: { images: true },
@@ -119,6 +126,15 @@ class CourseService {
         ]);
         await Promise.all(course.images.map((img) => img.storageKey && (0, storage_1.deleteStoredObject)(img.storageKey)));
         console.log("[svc] course deleted", courseId);
+    }
+    resolvePillar(courseId, pillar) {
+        const normalized = pillar && pillars_1.PILLAR_IDS.includes(pillar) ? pillar : null;
+        const mapped = pillars_1.PILLAR_BY_COURSE[courseId];
+        if (mapped)
+            return mapped;
+        if (normalized)
+            return normalized;
+        return "valores-humanos";
     }
 }
 exports.CourseService = CourseService;

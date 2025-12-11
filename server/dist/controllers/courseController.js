@@ -4,11 +4,16 @@ exports.courseController = void 0;
 const zod_1 = require("zod");
 const courseService_1 = require("../services/courseService");
 const storage_1 = require("../config/storage");
+const pillars_1 = require("../constants/pillars");
 const upsertSchema = zod_1.z.object({
     id: zod_1.z.string().min(1, "id é obrigatório"),
     name: zod_1.z.string().min(1, "Nome é obrigatório"),
     description: zod_1.z.string().max(800).optional(),
     fields: zod_1.z.any().optional(),
+    pillar: zod_1.z
+        .string()
+        .optional()
+        .refine((value) => value === undefined || pillars_1.PILLAR_IDS.includes(value), "Pilar inválido"),
 });
 exports.courseController = {
     list: async (_req, res) => {
@@ -27,7 +32,10 @@ exports.courseController = {
         if (!parsed.success) {
             return res.status(400).json({ message: "Dados inválidos", issues: parsed.error.flatten() });
         }
-        const course = await courseService_1.courseService.upsert(parsed.data);
+        const course = await courseService_1.courseService.upsert({
+            ...parsed.data,
+            pillar: parsed.data.pillar,
+        });
         return res.status(201).json(course);
     },
     uploadImages: async (req, res) => {
