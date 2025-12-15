@@ -23,6 +23,7 @@ const signAdminToken = (subject) => {
     return { token, exp };
 };
 exports.signAdminToken = signAdminToken;
+//a
 const verifyAdminToken = (token) => {
     const parts = token.split(".");
     if (parts.length !== 3)
