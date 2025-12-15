@@ -26,7 +26,7 @@ export const signAdminToken = (subject: string) => {
   const token = `${data}.${signature}`;
   return { token, exp };
 };
-
+//a
 export const verifyAdminToken = (token: string): TokenPayload | null => {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
