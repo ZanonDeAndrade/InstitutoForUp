@@ -10,10 +10,7 @@ const upsertSchema = zod_1.z.object({
     name: zod_1.z.string().min(1, "Nome é obrigatório"),
     description: zod_1.z.string().max(800).optional(),
     fields: zod_1.z.any().optional(),
-    pillar: zod_1.z
-        .string()
-        .optional()
-        .refine((value) => value === undefined || pillars_1.PILLAR_IDS.includes(value), "Pilar inválido"),
+    pillar: zod_1.z.string().refine((value) => pillars_1.PILLAR_IDS.includes(value), "Pilar inválido"),
 });
 exports.courseController = {
     list: async (_req, res) => {

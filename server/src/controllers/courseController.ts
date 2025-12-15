@@ -9,13 +9,7 @@ const upsertSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().max(800).optional(),
   fields: z.any().optional(),
-  pillar: z
-    .string()
-    .optional()
-    .refine(
-      (value) => value === undefined || PILLAR_IDS.includes(value as PillarId),
-      "Pilar inválido",
-    ),
+  pillar: z.string().refine((value) => PILLAR_IDS.includes(value as PillarId), "Pilar inválido"),
 });
 
 export const courseController = {
