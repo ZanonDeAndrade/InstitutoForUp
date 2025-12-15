@@ -37,16 +37,20 @@ class CourseService {
             orderBy: { name: "asc" },
         });
         console.log("[svc] list courses", courses.length);
+        const persistPromises = [];
         const coursesWithSigned = await Promise.all(courses.map(async (course) => ({
             ...course,
             description: normalizeDescription(course.description),
             fields: parseFields(course.fields),
-            pillar: this.resolvePillar(course.id, course.pillar),
+            pillar: await this.resolveAndPersistPillar(course.id, course.pillar, persistPromises),
             images: await Promise.all(course.images.map(async (img) => ({
                 ...img,
                 url: this.proxyUrl(img.storageKey ?? img.url ?? "") ?? (await (0, storage_1.getSignedUrl)(img.storageKey ?? img.url ?? "")),
             }))),
         })));
+        if (persistPromises.length) {
+            await Promise.allSettled(persistPromises);
+        }
         return coursesWithSigned;
     }
     async getById(id) {
@@ -57,6 +61,7 @@ class CourseService {
         console.log("[svc] getById", { id, found: !!course });
         if (!course)
             return null;
+        const pillar = await this.resolveAndPersistPillar(id, course.pillar);
         const images = await Promise.all(course.images.map(async (img) => ({
             ...img,
             url: this.proxyUrl(img.storageKey ?? img.url ?? "") ?? (await (0, storage_1.getSignedUrl)(img.storageKey ?? img.url ?? "")),
@@ -65,7 +70,7 @@ class CourseService {
             ...course,
             description: normalizeDescription(course.description),
             fields: parseFields(course.fields),
-            pillar: this.resolvePillar(course.id, course.pillar),
+            pillar,
             images,
         };
     }
@@ -127,13 +132,33 @@ class CourseService {
         await Promise.all(course.images.map((img) => img.storageKey && (0, storage_1.deleteStoredObject)(img.storageKey)));
         console.log("[svc] course deleted", courseId);
     }
+    async resolveAndPersistPillar(courseId, pillar, persistPromises) {
+        const normalized = this.normalizePillar(pillar);
+        const resolved = normalized ?? pillars_1.PILLAR_BY_COURSE[courseId] ?? "valores-humanos";
+        if (resolved !== pillar) {
+            const promise = prisma.course.update({ where: { id: courseId }, data: { pillar: resolved } });
+            if (persistPromises) {
+                persistPromises.push(promise);
+            }
+            else {
+                await promise;
+            }
+        }
+        return resolved;
+    }
+    normalizePillar(pillar) {
+        if (!pillar)
+            return null;
+        const cleaned = pillar.toLowerCase().trim().replace(/[_\s]+/g, "-");
+        return (pillars_1.PILLAR_IDS.includes(cleaned) ? cleaned : null);
+    }
     resolvePillar(courseId, pillar) {
-        const normalized = pillar && pillars_1.PILLAR_IDS.includes(pillar) ? pillar : null;
+        const normalized = this.normalizePillar(pillar);
+        if (normalized)
+            return normalized;
         const mapped = pillars_1.PILLAR_BY_COURSE[courseId];
         if (mapped)
             return mapped;
-        if (normalized)
-            return normalized;
         return "valores-humanos";
     }
 }

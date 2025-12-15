@@ -47,12 +47,13 @@ export class CourseService {
       orderBy: { name: "asc" },
     });
     console.log("[svc] list courses", courses.length);
+    const persistPromises: Promise<unknown>[] = [];
     const coursesWithSigned = await Promise.all(
       courses.map(async (course) => ({
         ...course,
         description: normalizeDescription(course.description),
         fields: parseFields(course.fields),
-        pillar: this.resolvePillar(course.id, course.pillar),
+        pillar: await this.resolveAndPersistPillar(course.id, course.pillar, persistPromises),
         images: await Promise.all(
           course.images.map(async (img) => ({
             ...img,
@@ -61,6 +62,9 @@ export class CourseService {
         ),
       })),
     );
+    if (persistPromises.length) {
+      await Promise.allSettled(persistPromises);
+    }
     return coursesWithSigned;
   }
 
@@ -71,6 +75,7 @@ export class CourseService {
     });
     console.log("[svc] getById", { id, found: !!course });
     if (!course) return null;
+    const pillar = await this.resolveAndPersistPillar(id, course.pillar);
     const images = await Promise.all(
       course.images.map(async (img) => ({
         ...img,
@@ -81,7 +86,7 @@ export class CourseService {
       ...course,
       description: normalizeDescription(course.description),
       fields: parseFields(course.fields),
-      pillar: this.resolvePillar(course.id, course.pillar),
+      pillar,
       images,
     };
   }
@@ -156,11 +161,35 @@ export class CourseService {
     console.log("[svc] course deleted", courseId);
   }
 
+  private async resolveAndPersistPillar(
+    courseId: string,
+    pillar?: string | null,
+    persistPromises?: Promise<unknown>[],
+  ): Promise<PillarId> {
+    const normalized = this.normalizePillar(pillar);
+    const resolved = normalized ?? PILLAR_BY_COURSE[courseId] ?? "valores-humanos";
+    if (resolved !== pillar) {
+      const promise = prisma.course.update({ where: { id: courseId }, data: { pillar: resolved } });
+      if (persistPromises) {
+        persistPromises.push(promise);
+      } else {
+        await promise;
+      }
+    }
+    return resolved;
+  }
+
+  private normalizePillar(pillar?: string | null): PillarId | null {
+    if (!pillar) return null;
+    const cleaned = pillar.toLowerCase().trim().replace(/[_\s]+/g, "-");
+    return (PILLAR_IDS.includes(cleaned as PillarId) ? cleaned : null) as PillarId | null;
+  }
+
   private resolvePillar(courseId: string, pillar?: string | null): PillarId {
-    const normalized = pillar && PILLAR_IDS.includes(pillar as PillarId) ? (pillar as PillarId) : null;
+    const normalized = this.normalizePillar(pillar);
+    if (normalized) return normalized;
     const mapped = PILLAR_BY_COURSE[courseId];
     if (mapped) return mapped;
-    if (normalized) return normalized;
     return "valores-humanos";
   }
 }
