@@ -10,19 +10,19 @@ const Hero = () => {
         <img 
           src={heroImage} 
           alt="Educação e Liderança" 
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/90"></div>
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-4 z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-display font-bold text-foreground mb-6 animate-fade-in leading-tight">
-            Formando Pessoas para o{" "}
-            <span className="text-gradient-gold">Hoje</span>
+            Formação em valores{" "}
+            <span className="text-gradient-gold">humanos</span>,
             <br />
-            com Consciência e Propósito
+            liderança e criatividade
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 animate-fade-in-delay leading-relaxed max-w-3xl mx-auto">
