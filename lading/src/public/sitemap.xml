@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.iforup.com/</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/news</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/cafe-cultural</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/curso/valores-humanos</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/curso/desenvolvimento-jovem-lider</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/curso/performando-lideranca-resultado</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.iforup.com/curso/jornada-lideristica</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>
