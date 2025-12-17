@@ -145,7 +145,9 @@ const Courses = () => {
     if (hashPillar && hashPillar.id !== selectedPillar) {
       setSelectedPillar(hashPillar.id);
     }
-  }, [location.hash, selectedPillar]);
+    // Only react to hash changes to avoid overriding manual tab changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.hash]);
 
   useEffect(() => {
     const hasCoursesForSelectedYear = courses.some(
