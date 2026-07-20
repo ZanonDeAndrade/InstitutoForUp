@@ -4,17 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CourseImage } from "@/types/course";
-import { courseApi } from "@/services/courseApi";
+import { adminCourseApi } from "@/services/adminCourseApi";
 
 interface CourseImagesManagerProps {
   courseId: string;
   images?: CourseImage[];
   onImagesChange: (images: CourseImage[]) => void;
+  canManage?: boolean;
 }
 
 const MAX_FILE_MB = 2;
 
-const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseImagesManagerProps) => {
+const CourseImagesManager = ({ courseId, images = [], onImagesChange, canManage = true }: CourseImagesManagerProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -44,7 +45,7 @@ const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseIm
     if (!selectedFiles.length) return;
     setIsUploading(true);
     try {
-      const uploaded = await courseApi.uploadImages(courseId, selectedFiles);
+      const uploaded = await adminCourseApi.uploadImages(courseId, selectedFiles);
       onImagesChange([...images, ...uploaded]);
       toast.success("Imagens enviadas com sucesso.");
       setSelectedFiles([]);
@@ -59,7 +60,7 @@ const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseIm
   const handleDelete = async (imageId: string) => {
     setIsDeleting(imageId);
     try {
-      await courseApi.deleteImage(courseId, imageId);
+      await adminCourseApi.deleteImage(courseId, imageId);
       onImagesChange(images.filter((image) => image.id !== imageId));
       toast.success("Imagem removida.");
     } catch (error) {
@@ -72,6 +73,7 @@ const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseIm
 
   return (
     <div className="space-y-2">
+      {canManage && (
       <div className="flex flex-col gap-3">
         <Label className="text-sm text-muted-foreground">Fotos do curso</Label>
         <Input
@@ -117,6 +119,7 @@ const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseIm
           )}
         </div>
       </div>
+      )}
 
       {images.length > 0 && (
         <div className="flex flex-wrap gap-3 pt-1">
@@ -126,16 +129,18 @@ const CourseImagesManager = ({ courseId, images = [], onImagesChange }: CourseIm
               className="group relative h-24 w-32 overflow-hidden rounded-lg border border-border/60"
             >
               <img src={image.url} alt={image.alt || "Imagem do curso"} className="h-full w-full object-cover" />
-              <button
-                type="button"
-                onClick={() => handleDelete(image.id)}
-                className="absolute inset-0 flex items-center justify-center bg-background/70 opacity-0 transition-opacity group-hover:opacity-100"
-                disabled={isDeleting === image.id}
-              >
-                <span className="text-sm font-semibold text-destructive">
-                  {isDeleting === image.id ? "Removendo..." : "Excluir"}
-                </span>
-              </button>
+              {canManage && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(image.id)}
+                  className="absolute inset-0 flex items-center justify-center bg-background/70 opacity-0 transition-opacity group-hover:opacity-100"
+                  disabled={isDeleting === image.id}
+                >
+                  <span className="text-sm font-semibold text-destructive">
+                    {isDeleting === image.id ? "Removendo..." : "Excluir"}
+                  </span>
+                </button>
+              )}
             </div>
           ))}
         </div>

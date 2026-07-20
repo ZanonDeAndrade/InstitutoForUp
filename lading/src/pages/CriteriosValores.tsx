@@ -24,7 +24,7 @@ const CriteriosValores = () => {
 
           {/* Form */}
           <div className="animate-slide-up mt-10">
-            <CourseForm courseName="Critérios e Valores Humanos" />
+            <CourseForm courseId="criterios-valores" courseName="Critérios e Valores Humanos" />
           </div>
         </div>
       </div>

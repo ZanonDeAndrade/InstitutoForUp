@@ -1,6 +1,7 @@
 import { Facebook, Instagram, Linkedin } from "lucide-react";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
   const socials = [
     { href: "https://www.linkedin.com/company/109994575/admin/dashboard/", label: "LinkedIn", icon: Linkedin },
     { href: "https://www.instagram.com/instituto_for_up_education/", label: "Instagram", icon: Instagram },
@@ -27,7 +28,7 @@ const Footer = () => {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            © 2025 Instituto FOR UP Education — Todos os direitos reservados.
+            © {currentYear} Instituto FOR UP Education — Todos os direitos reservados.
           </p>
         </div>
       </div>

@@ -1,16 +1,36 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { courseService } from "../services/courseService";
-import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES, persistUploadedFiles } from "../config/storage";
+import { persistUploadedFiles } from "../config/storage";
+import { ImageUploadError } from "../services/imageUploadService";
 import { PILLAR_IDS, PillarId } from "../constants/pillars";
+import { appErrors } from "../errors/AppError";
+import { courseContentSchema } from "../dtos/courseContentDto";
 
 const upsertSchema = z.object({
-  id: z.string().min(1, "id é obrigatório"),
-  name: z.string().min(1, "Nome é obrigatório"),
-  description: z.string().max(800).optional(),
-  fields: z.any().optional(),
-  pillar: z.string().refine((value) => PILLAR_IDS.includes(value as PillarId), "Pilar inválido"),
+  id: z.string().min(1, "id e obrigatorio"),
+  name: z.string().min(1, "Nome e obrigatorio"),
+  description: z.string().max(10000).optional(),
+  fields: z
+    .object({
+      name: z.boolean().optional(),
+      email: z.boolean().optional(),
+      phone: z.boolean().optional(),
+      source: z.boolean().optional(),
+      quote: z.string().max(500).optional(),
+    })
+    .passthrough()
+    .optional(),
+  content: courseContentSchema.optional(),
+  pillar: z.string().refine((value) => PILLAR_IDS.includes(value as PillarId), "Pilar invalido"),
 });
+
+const requiredParam = (value: string | undefined, code: string) => {
+  if (!value) {
+    throw appErrors.validation(code, "Parametro de rota invalido.");
+  }
+  return value;
+};
 
 export const courseController = {
   list: async (_req: Request, res: Response) => {
@@ -19,17 +39,18 @@ export const courseController = {
   },
 
   getById: async (req: Request, res: Response) => {
-    const course = await courseService.getById(req.params.courseId);
+    const courseId = requiredParam(req.params.courseId, "COURSE_ID_REQUIRED");
+    const course = await courseService.getById(courseId);
     if (!course) {
-      return res.status(404).json({ message: "Curso não encontrado" });
+      throw appErrors.notFound("COURSE_NOT_FOUND", "Curso nao encontrado.");
     }
     return res.json(course);
-  }, //adwasd
+  },
 
   upsert: async (req: Request, res: Response) => {
     const parsed = upsertSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: "Dados inválidos", issues: parsed.error.flatten() });
+      throw appErrors.validation("VALIDATION_ERROR", "Dados invalidos.");
     }
 
     const course = await courseService.upsert({
@@ -41,41 +62,35 @@ export const courseController = {
 
   uploadImages: async (req: Request, res: Response) => {
     const files = (req.files as Express.Multer.File[]) || [];
-    console.log("[ctrl] uploadImages", {
-      courseId: req.params.courseId,
-      files: files.map((f) => ({ name: f.originalname, size: f.size, type: f.mimetype })),
-    });
     if (!files.length) {
-      return res.status(400).json({ message: "Envie pelo menos uma imagem." });
-    }
-
-    const invalid = files.find(
-      (file) => file.size > MAX_FILE_SIZE_BYTES || !ALLOWED_MIME_TYPES.includes(file.mimetype),
-    );
-    if (invalid) {
-      return res
-        .status(400)
-        .json({ message: "Apenas PNG/JPG/WebP até 2MB são permitidos.", file: invalid.originalname });
+      throw appErrors.validation("IMAGE_REQUIRED", "Envie pelo menos uma imagem.");
     }
 
     try {
       const stored = await persistUploadedFiles(files);
-      const created = await courseService.addImages(req.params.courseId, stored);
-      console.log("[ctrl] uploadImages stored", created);
+      const courseId = requiredParam(req.params.courseId, "COURSE_ID_REQUIRED");
+      const created = await courseService.addImages(courseId, stored);
       return res.status(201).json(created);
     } catch (err) {
-      console.error("[ctrl] uploadImages error", err);
-      return res.status(500).json({ message: "Erro ao salvar imagens", error: (err as Error).message });
+      if (err instanceof ImageUploadError) {
+        throw appErrors.validation(err.code, "Arquivo de imagem invalido.");
+      }
+      if ((err as Error).message === "COURSE_NOT_FOUND") {
+        throw appErrors.notFound("COURSE_NOT_FOUND", "Curso nao encontrado.");
+      }
+      throw err;
     }
   },
 
   deleteImage: async (req: Request, res: Response) => {
     try {
-      await courseService.deleteImage(req.params.courseId, req.params.imageId);
+      const courseId = requiredParam(req.params.courseId, "COURSE_ID_REQUIRED");
+      const imageId = requiredParam(req.params.imageId, "IMAGE_ID_REQUIRED");
+      await courseService.deleteImage(courseId, imageId);
       return res.status(204).send();
     } catch (error) {
       if ((error as Error).message === "IMAGE_NOT_FOUND") {
-        return res.status(404).json({ message: "Imagem não encontrada" });
+        throw appErrors.notFound("IMAGE_NOT_FOUND", "Imagem nao encontrada.");
       }
       throw error;
     }
@@ -83,14 +98,14 @@ export const courseController = {
 
   delete: async (req: Request, res: Response) => {
     try {
-      await courseService.deleteCourse(req.params.courseId);
+      const courseId = requiredParam(req.params.courseId, "COURSE_ID_REQUIRED");
+      await courseService.deleteCourse(courseId);
       return res.status(204).send();
     } catch (error) {
       if ((error as Error).message === "COURSE_NOT_FOUND") {
-        return res.status(404).json({ message: "Curso não encontrado" });
+        throw appErrors.notFound("COURSE_NOT_FOUND", "Curso nao encontrado.");
       }
-      console.error("[ctrl] delete course error", error);
-      return res.status(500).json({ message: "Erro ao excluir curso" });
+      throw error;
     }
   },
 };

@@ -1,10 +1,12 @@
 /* Seed script to upsert courses with the exact requested descriptions */
 const path = require("node:path");
-const { PrismaClient } = require("../node_modules/@prisma/client");
+const { PrismaClient } = require("@prisma/client");
+const { createMaintenanceContext } = require("./lib/safeMaintenance");
 const dotenvPath = path.join(__dirname, "..", ".env");
 require("dotenv").config({ path: dotenvPath });
 
 const prisma = new PrismaClient();
+const context = createMaintenanceContext({ scriptName: "seed-valores-humanos", destructive: true });
 
 const valoresHumanos = {
   id: "valores-humanos",
@@ -158,38 +160,199 @@ const jornadaLideristica = {
 
 const coursesData = [valoresHumanos, jovemLider, plr, jornadaLideristica, cafeCultural];
 
+const stableJson = (value) => {
+  if (Array.isArray(value)) return value.map(stableJson);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stableJson(value[key])]));
+  }
+  return value;
+};
+const stableStringify = (value) => JSON.stringify(stableJson(value));
+
+const headingsByCourse = {
+  "valores-humanos": new Set(["Propósito do Programa", "Metodologia de Desenvolvimento e Alta Performance", "A Quem se Destina"]),
+  "desenvolvimento-jovem-lider": new Set(["Os Alicerces da Liderança de Destaque", "Estrutura para o Sucesso Consistente", "A Quem se Destina"]),
+  "performando-lideranca-resultado": new Set(["Objetivo: Potencialização e Maestria", "O Resgate do Mestre Interior", "Estrutura e Dinâmica de Alto Nível"]),
+  "jornada-lideristica": new Set(["Por que a Jornada Liderística?", "Propósito e Temáticas", "Metodologia e Coordenação", "Datas e Locais"]),
+};
+const bulletPattern = /^[•●○]/;
+const cleanLine = (line) => line.replace(/^[\s\-•●○]+/, "").replace(/\s+/g, " ").trim();
+
+const descriptionToSections = (description, headings = new Set()) =>
+  description
+    .split(/\n\s*\n/)
+    .map((block, index) => {
+      const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+      if (!lines.length) return null;
+      const heading = headings.has(lines[0]) ? lines[0] : undefined;
+      const contentLines = heading ? lines.slice(1) : lines;
+      const allBullets = lines.every((line) => bulletPattern.test(line));
+      const bullets = heading
+        ? contentLines.filter((line) => bulletPattern.test(line)).map(cleanLine)
+        : allBullets
+          ? lines.map(cleanLine)
+          : [];
+      const paragraphs = heading
+        ? contentLines.filter((line) => !bulletPattern.test(line)).map(cleanLine)
+        : allBullets
+          ? []
+          : lines.map(cleanLine);
+      return {
+        id: `section-${index + 1}`,
+        type: "text",
+        ...(heading ? { heading } : {}),
+        paragraphs,
+        ...(bullets.length ? { bullets } : {}),
+        align: heading ? "left" : "center",
+      };
+    })
+    .filter(Boolean);
+
+const cafeShort =
+  "O Café Cultural é um grupo de estudos com encontros realizados mensalmente, dedicados a mergulhar na história da inteligência humana. Nosso objetivo é analisar e debater personalidades e assuntos que representam o auge da inovação e do conhecimento.";
+const cafeFull = `${cafeShort}\n\nA cada ciclo, exploramos grandes mentes (como cientistas, filósofos e artistas) e temas que nos ajudam a entender o momento histórico e a capacidade de pensar da humanidade. O encontro é um momento de alegria e prazer, sem formalidades excessivas, onde se busca conhecer mais de forma prazerosa.\n\nO foco é no estudo detalhado, mas acessível, gerando aprendizados valiosos para a vida toda. As personalidades estudadas são analisadas através dos seguintes elementos: as formas de mentes, performances, habilidades, estilos de vida, culturas, educação, valores humanos e escolhas que as levaram a alcançar realizações de ponta. O principal é entender esses componentes de uma forma leve e informativa.\n\nO formato de nosso encontro mensal inclui o compartilhamento de material curado para estudo prévio, uma apresentação detalhada do tema e, no coração do evento, um debate cultural aberto e crítico. O Café Cultural é um espaço multidisciplinar que reúne pessoas de diversas áreas, unidas pela curiosidade, em um ambiente acolhedor e estimulante.`;
+
+const buildStructuredContent = (course, description, fields) => {
+  if (course.id === "cafe-cultural") {
+    return {
+      version: 1,
+      seo: { title: course.name, description: cafeShort },
+      sections: descriptionToSections(cafeFull),
+      cta: {
+        type: "external",
+        label: "Entrar no grupo",
+        url: "https://chat.whatsapp.com/Cpxf7ujEIQZEck6REKrlP6",
+        helperText: "Ao clicar, você será redirecionado para o grupo.",
+        collapsedSections: descriptionToSections(cafeShort),
+      },
+      form: { fields },
+      specific: { format: "monthly-cultural-study-group" },
+    };
+  }
+
+  return {
+    version: 1,
+    seo: { title: course.name, description: cleanLine(course.descriptionLines.find(Boolean) || "").slice(0, 300) },
+    ...(course.quote ? { hero: { quote: course.quote } } : {}),
+    sections: descriptionToSections(description, headingsByCourse[course.id]),
+    cta: { type: "form" },
+    form: { fields },
+  };
+};
+
 async function main() {
-  // Remove curso antigo se ainda existir
-  await prisma.course.deleteMany({
+  context.printBanner();
+  context.assertValidDatabase();
+
+  const desiredCourses = coursesData.map((course) => {
+    const description = course.descriptionLines.join("\n");
+    const formFields = { name: true, email: true, phone: true, source: true };
+    const fields = { ...formFields, quote: course.quote };
+    return {
+      id: course.id,
+      name: course.name,
+      description,
+      fields: JSON.stringify(fields),
+      content: buildStructuredContent(course, description, formFields),
+    };
+  });
+  const desiredIds = desiredCourses.map((course) => course.id);
+
+  const obsoleteCourses = await prisma.course.findMany({
     where: {
       OR: [
         { id: "criatividade-empresarial" },
         { name: "Criatividade Empresarial" },
       ],
     },
+    select: { id: true, name: true },
   });
 
-  for (const course of coursesData) {
-    const description = course.descriptionLines.join("\n");
-    const fields = { name: true, email: true, phone: true, source: true, quote: course.quote };
+  const existingCourses = await prisma.course.findMany({
+    where: { id: { in: desiredIds } },
+    select: { id: true, name: true, description: true, fields: true, content: true },
+  });
+  const existingById = new Map(existingCourses.map((course) => [course.id, course]));
 
-    await prisma.course.upsert({
-      where: { id: course.id },
-      update: {
-        name: course.name,
-        description,
-        fields: JSON.stringify(fields),
-      },
-      create: {
-        id: course.id,
-        name: course.name,
-        description,
-        fields: JSON.stringify(fields),
-      },
-    });
+  const creates = [];
+  const updates = [];
+  const unchanged = [];
+  for (const course of desiredCourses) {
+    const existing = existingById.get(course.id);
+    if (!existing) {
+      creates.push(course);
+      continue;
+    }
+    if (
+      existing.name !== course.name ||
+      existing.description !== course.description ||
+      existing.fields !== course.fields ||
+      stableStringify(existing.content) !== stableStringify(course.content)
+    ) {
+      updates.push(course);
+      continue;
+    }
+    unchanged.push(course);
   }
 
-  console.log("Cursos atualizados com os textos exatos (VH, DJL, PLR, Jornada Liderística).");
+  console.log(
+    "[seed-valores-humanos] plano",
+    JSON.stringify({
+      create: creates.map((course) => course.id),
+      update: updates.map((course) => course.id),
+      unchanged: unchanged.map((course) => course.id),
+      delete: obsoleteCourses.map((course) => ({ id: course.id, name: course.name })),
+    }),
+  );
+
+  if (context.dryRun) {
+    context.printExecutionHint();
+    context.logResult({
+      created: 0,
+      updated: 0,
+      deleted: 0,
+      dryRun: true,
+      plannedCreates: creates.length,
+      plannedUpdates: updates.length,
+      plannedDeletes: obsoleteCourses.length,
+    });
+    return;
+  }
+
+  context.assertCanExecute();
+  const result = await prisma.$transaction(async (tx) => {
+    let deleted = 0;
+    for (const course of obsoleteCourses) {
+      await tx.course.delete({ where: { id: course.id } });
+      deleted += 1;
+    }
+
+    let created = 0;
+    for (const course of creates) {
+      await tx.course.create({ data: course });
+      created += 1;
+    }
+
+    let updated = 0;
+    for (const course of updates) {
+      await tx.course.update({
+        where: { id: course.id },
+        data: {
+          name: course.name,
+          description: course.description,
+          fields: course.fields,
+          content: course.content,
+        },
+      });
+      updated += 1;
+    }
+
+    return { created, updated, deleted, unchanged: unchanged.length };
+  });
+
+  context.logResult(result);
+  return;
+
 }
 
 main()

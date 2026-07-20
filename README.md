@@ -60,6 +60,10 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## CI/CD e validacoes
+
+O projeto possui workflows GitHub Actions para CI e preflight de deploy. Consulte [docs/ci-cd.md](docs/ci-cd.md) para checks obrigatorios, politica de `npm audit`, ambientes, secrets, migracoes e rollback.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/d063ca3f-3721-4ec8-af3b-511b788469ed) and click on Share -> Publish.

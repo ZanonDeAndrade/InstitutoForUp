@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { deleteStoredObject, getSignedUrl } from "../config/storage";
+import type { News } from "@prisma/client";
+import { deleteStoredObject } from "../config/storage";
+import { env } from "../config/env";
+import { hasStorageBackedImageReference, isSafePublicImageId } from "./publicImageService";
 import { CreateNewsDto, NewsResponseDto, PaginatedResult, UpdateNewsDto } from "../dtos/newsDto";
 
 const prisma = new PrismaClient();
@@ -19,32 +22,38 @@ const slugify = (value: string) =>
     .replace(/(^-|-$)+/g, "") || `news-${Date.now()}`;
 
 export class NewsService {
-  private proxyUrl(storageKey?: string | null) {
-    if (!storageKey) return undefined;
-    const base = process.env.PUBLIC_BASE_URL ?? "http://localhost:4000";
-    return `${base.replace(/\/$/, "")}/api/images/${encodeURIComponent(storageKey)}`;
+  private proxyUrl(newsId?: string | null) {
+    if (!newsId || !isSafePublicImageId(newsId)) return undefined;
+    const base = env.PUBLIC_BASE_URL;
+    return `${base.replace(/\/$/, "")}/api/images/news/${encodeURIComponent(newsId)}`;
   }
 
-  private async mapToDto(news: any): Promise<NewsResponseDto> {
-    const imageUrl = news.imageStorageKey
-      ? this.proxyUrl(news.imageStorageKey) ?? (await getSignedUrl(news.imageStorageKey))
+  private async mapToDto(news: News): Promise<NewsResponseDto> {
+    const imageUrl = hasStorageBackedImageReference(news.imageStorageKey, news.imageUrl, "news")
+      ? this.proxyUrl(news.id) ?? ""
       : news.imageUrl;
 
     return {
-      ...news,
-      status: (news.status as "published" | "draft") ?? "published",
+      id: news.id,
+      title: news.title,
+      subtitle: news.subtitle,
+      content: news.content,
       imageUrl,
+      slug: news.slug,
+      status: (news.status as "published" | "draft") ?? "published",
       publishedAt: news.publishedAt ? news.publishedAt.toISOString() : null,
       createdAt: news.createdAt?.toISOString(),
       updatedAt: news.updatedAt?.toISOString(),
     };
   }
 
-  async list(params?: { page?: number; pageSize?: number }) {
+  async list(params?: { page?: number; pageSize?: number; includeDrafts?: boolean }) {
     const page = params?.page && params.page > 0 ? params.page : 1;
     const pageSize = params?.pageSize && params.pageSize > 0 ? params.pageSize : 10;
+    const where = params?.includeDrafts ? undefined : { status: "published" };
     const [items, total] = await Promise.all([
       prisma.news.findMany({
+        where,
         orderBy: [
           { publishedAt: "desc" },
           { createdAt: "desc" },
@@ -52,7 +61,7 @@ export class NewsService {
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.news.count(),
+      prisma.news.count({ where }),
     ]);
 
     const mapped = await Promise.all(items.map((item) => this.mapToDto(item)));
@@ -66,9 +75,12 @@ export class NewsService {
     return result;
   }
 
-  async getBySlug(slug: string): Promise<NewsResponseDto | null> {
-    const news = await prisma.news.findUnique({
-      where: { slug },
+  async getBySlug(slug: string, includeDrafts = false): Promise<NewsResponseDto | null> {
+    const news = await prisma.news.findFirst({
+      where: {
+        slug,
+        ...(includeDrafts ? {} : { status: "published" }),
+      },
     });
     if (!news) return null;
     return this.mapToDto(news);

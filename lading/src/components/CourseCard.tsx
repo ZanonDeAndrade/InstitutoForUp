@@ -21,7 +21,7 @@ const stripLeadingTitle = (text: string, title: string) => {
 
   if (normalizedText.startsWith(normalizedTitle)) {
     const withoutTitle = trimmedText.slice(trimmedTitle.length).trimStart();
-    return withoutTitle.replace(/^[-:.,\s]+/, "").trimStart() || trimmedText;
+    return withoutTitle.replace(/^(?:-|:|\.|,|\s)+/, "").trimStart() || trimmedText;
   }
 
   return trimmedText;

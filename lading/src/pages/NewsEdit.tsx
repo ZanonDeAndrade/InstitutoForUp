@@ -1,24 +1,34 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import CourseLayout from "@/components/CourseLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import NewsForm from "@/components/NewsForm";
 import { News, UpsertNewsDto } from "@/types/news";
-import { newsApi } from "@/services/newsApi";
+import { adminNewsApi } from "@/services/adminNewsApi";
 import { toast } from "sonner";
+import { useAdminSession } from "@/lib/adminSessionContext";
+import { ADMIN_PERMISSIONS, hasAdminPermission } from "@/lib/adminPermissions";
 
 const NewsEdit = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const adminUser = useAdminSession();
+  const canPublishNews = hasAdminPermission(adminUser, ADMIN_PERMISSIONS.PUBLISH_NEWS);
   const [item, setItem] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadNews = async (currentSlug: string) => {
+  const loadNews = useCallback(async (currentSlug: string) => {
+    if (!canPublishNews) {
+      setLoading(false);
+      setItem(null);
+      return;
+    }
+
     try {
       setLoading(true);
-      const data = await newsApi.getBySlug(currentSlug, true);
+      const data = await adminNewsApi.getBySlug(currentSlug);
       setItem(data);
     } catch (error) {
       console.error(error);
@@ -26,23 +36,28 @@ const NewsEdit = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [canPublishNews]);
 
   useEffect(() => {
     if (slug) {
       loadNews(slug);
     }
-  }, [slug]);
+  }, [loadNews, slug]);
 
   const handleSubmit = async (payload: UpsertNewsDto) => {
     if (!item) return;
+    if (!canPublishNews) {
+      toast.error("Acesso negado.");
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const updated = await newsApi.update(item.id, payload);
+      const updated = await adminNewsApi.update(item.id, payload);
       setItem(updated);
       toast.success("Post atualizado.");
       if (updated.slug !== slug) {
-        navigate(`/admin/news/${updated.slug}/edit`, { replace: true });
+        navigate(`/news/${updated.slug}/edit`, { replace: true });
       }
     } catch (error) {
       console.error(error);
@@ -65,11 +80,11 @@ const NewsEdit = () => {
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline">
-                <Link to="/admin/news">Voltar</Link>
+                <Link to="/news">Voltar</Link>
               </Button>
               {item && (
                 <Button asChild variant="secondary">
-                  <Link to={`/news/${item.slug}`} target="_blank" rel="noreferrer">
+                  <Link to={`/news/${item.slug}`} target="_blank" rel="noopener noreferrer">
                     Ver publicação
                   </Link>
                 </Button>
@@ -77,6 +92,11 @@ const NewsEdit = () => {
             </div>
           </CardHeader>
           <CardContent>
+            {!canPublishNews && (
+              <p className="text-sm text-muted-foreground">Seu usuario nao possui permissao para publicar noticias.</p>
+            )}
+            {canPublishNews && (
+              <>
             {loading && <p className="text-muted-foreground">Carregando post...</p>}
             {!loading && item && (
               <NewsForm
@@ -88,6 +108,8 @@ const NewsEdit = () => {
             )}
             {!loading && !item && (
               <p className="text-destructive">Não foi possível localizar este post.</p>
+            )}
+              </>
             )}
           </CardContent>
         </Card>

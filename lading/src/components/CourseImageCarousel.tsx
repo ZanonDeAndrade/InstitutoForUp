@@ -33,9 +33,6 @@ const CourseImageCarousel = ({ images, heightClass = "h-72 md:h-96" }: CourseIma
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
-    // debug log
-    // eslint-disable-next-line no-console
-    console.log("[carousel] images", validImages.map((img) => img.url));
     if (!emblaApi) return;
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());

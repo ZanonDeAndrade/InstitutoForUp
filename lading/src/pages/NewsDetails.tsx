@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { marked } from "marked";
 import CourseLayout from "@/components/CourseLayout";
 import { Button } from "@/components/ui/button";
 import { News } from "@/types/news";
 import { newsApi } from "@/services/newsApi";
+import { getSafeImageUrl, renderSafeMarkdown } from "@/lib/safeMarkdown";
 
 const formatDate = (value?: string | null) => {
   if (!value) return "";
@@ -36,9 +36,11 @@ const NewsDetails = () => {
 
   const renderContent = () => {
     if (!news) return null;
-    const html = marked.parse(news.content || "", { breaks: true });
+    const html = renderSafeMarkdown(news.content || "");
     return { __html: html };
   };
+
+  const imageUrl = getSafeImageUrl(news?.imageUrl);
 
   return (
     <CourseLayout>
@@ -65,10 +67,10 @@ const NewsDetails = () => {
               {news.subtitle && <p className="text-lg text-muted-foreground">{news.subtitle}</p>}
             </div>
 
-            {news.imageUrl && (
+            {imageUrl && (
               <div className="overflow-hidden rounded-2xl shadow-lg">
                 <img
-                  src={news.imageUrl}
+                  src={imageUrl}
                   alt={news.title}
                   className="h-full w-full object-cover"
                   loading="lazy"

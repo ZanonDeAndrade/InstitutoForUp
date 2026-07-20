@@ -74,7 +74,10 @@ const ValoresHumanos = () => {
 
           {/* Form */}
           <div className="mt-10 animate-slide-up">
-            <CourseForm courseName="Valores Humanos: Base para a Autorrealização (VH)" />
+            <CourseForm
+              courseId="valores-humanos"
+              courseName="Valores Humanos: Base para a Autorrealização (VH)"
+            />
           </div>
         </div>
       </div>

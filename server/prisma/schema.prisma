@@ -8,15 +8,60 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum AdminRole {
+  super_admin
+  editor
+  viewer
+}
+
+model AdminUser {
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  username            String              @unique
+  passwordHash        String
+  role                AdminRole           @default(viewer)
+  isActive            Boolean             @default(true)
+  failedLoginAttempts Int                 @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  loginAudits         AdminLoginAudit[]
+  deletedLeads        Lead[]              @relation("LeadDeletedBy")
+  leadDeletionAudits  LeadDeletionAudit[] @relation("LeadDeletionActor")
+  actionAudits        AdminActionAudit[]  @relation("AdminActionActor")
+
+  @@index([role])
+  @@index([lockedUntil])
+}
+
+model AdminLoginAudit {
+  id            String     @id @default(cuid())
+  adminUserId   String?
+  adminUser     AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+  identifier    String
+  success       Boolean
+  failureReason String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime   @default(now())
+
+  @@index([adminUserId, createdAt])
+  @@index([identifier, createdAt])
+  @@index([success, createdAt])
+}
+
 model Course {
   id          String        @id
   name        String
   description String?
   fields      String?
+  content     Json?
   pillar      String        @default("valores-humanos")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   images      CourseImage[]
+  leads       Lead[]
 }
 
 model CourseImage {
@@ -45,13 +90,66 @@ model News {
 }
 
 model Lead {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  phone       String?
-  source      String?
-  message     String?
-  course      String?
-  submittedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
+  id              String     @id @default(cuid())
+  name            String
+  email           String
+  normalizedEmail String?
+  phone           String?
+  normalizedPhone String?
+  source          String?
+  message         String?
+  course          String?
+  courseId        String?
+  idempotencyKey  String?    @unique
+  courseRef       Course?    @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  submittedAt     DateTime   @default(now())
+  createdAt       DateTime   @default(now())
+  deletedAt       DateTime?
+  deletedBy       String?
+  deletedByAdmin  AdminUser? @relation("LeadDeletedBy", fields: [deletedBy], references: [id], onDelete: SetNull)
+  deletionReason  String?
+
+  @@index([courseId])
+  @@index([normalizedEmail, normalizedPhone, courseId, submittedAt])
+  @@index([submittedAt])
+  @@index([deletedAt])
+  @@index([deletedBy])
+}
+
+model LeadDeletionAudit {
+  id            String     @id @default(cuid())
+  action        String
+  scope         String
+  leadIds       Json?
+  courseId      String?
+  courseName    String?
+  reason        String
+  confirmation  String
+  actorId       String?
+  actor         AdminUser? @relation("LeadDeletionActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole     AdminRole
+  affectedCount Int
+  createdAt     DateTime   @default(now())
+
+  @@index([action, createdAt])
+  @@index([actorId, createdAt])
+  @@index([scope, createdAt])
+}
+
+model AdminActionAudit {
+  id         String     @id @default(cuid())
+  actorId    String?
+  actor      AdminUser? @relation("AdminActionActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole  AdminRole
+  action     String
+  resource   String
+  resourceId String?
+  method     String?
+  path       String?
+  requestId  String?
+  createdAt  DateTime   @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+  @@index([resource, resourceId])
 }

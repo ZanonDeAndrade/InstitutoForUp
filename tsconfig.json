@@ -19,12 +19,15 @@
     // Checagens de tipo/libs
     "skipLibCheck": true,
 
-    // Regras de lint/strictness
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    // Regras de type safety
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 
     // Aliases de import (substitui o baseUrl)
     "paths": {

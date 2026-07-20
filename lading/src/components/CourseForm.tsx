@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,55 +12,55 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import TurnstileCaptcha from "@/components/TurnstileCaptcha";
 import { leadSourceOptions } from "@/constants/leadSources";
 import { leadApi } from "@/services/leadApi";
-
-interface CourseFormFieldsConfig {
-  name: boolean;
-  email: boolean;
-  phone: boolean;
-  source: boolean;
-}
+import type { CourseFieldsConfig } from "@/types/course";
+import type { LeadInterestFormValues } from "@/types/lead";
 
 interface CourseFormProps {
+  courseId: string;
   courseName: string;
-  fields?: CourseFormFieldsConfig;
+  fields?: CourseFieldsConfig;
 }
 
-const CourseForm = ({ courseName, fields }: CourseFormProps) => {
-  interface Lead {
-    name: string;
-    email: string;
-    phone: string;
-    source: string;
-    message?: string;
-    course: string;
-    submittedAt: string;
-  }
-
-  const effectiveFields: CourseFormFieldsConfig = fields ?? {
+const CourseForm = ({ courseId, courseName, fields }: CourseFormProps) => {
+  const effectiveFields: CourseFieldsConfig = fields ?? {
     name: true,
     email: true,
     phone: true,
     source: true,
   };
 
-  type FormField = "name" | "email" | "phone" | "source" | "message";
+  type FormField = "name" | "email" | "phone" | "source" | "message" | "website";
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LeadInterestFormValues>({
     name: "",
     email: "",
     phone: "",
     source: "",
     message: "",
+    website: "",
   });
+  const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
+  const [captchaToken, setCaptchaToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const captchaSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim();
+
+  const resetProtectionFields = () => {
+    setFormStartedAt(Date.now());
+    setCaptchaToken("");
+  };
 
   const updateField = (field: FormField, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setSubmitted(false);
   };
+
+  const updateCaptchaToken = useCallback((token: string) => {
+    setCaptchaToken(token);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,42 +81,36 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
       return;
     }
 
-    const newLead: Lead = {
-      ...formData,
-      message: formData.message?.trim() || undefined,
-      course: courseName,
-      submittedAt: new Date().toISOString(),
-    };
-
     setSubmitted(false);
+    if (captchaSiteKey && !captchaToken) {
+      toast.error("Conclua a verificaÃ§Ã£o anti-abuso antes de enviar.");
+      return;
+    }
+
     setSubmitting(true);
     try {
+      const idempotencyKey = crypto.randomUUID();
       await leadApi.create({
-        name: newLead.name,
-        email: newLead.email,
-        phone: newLead.phone,
-        source: newLead.source,
-        message: newLead.message,
-        course: newLead.course,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || undefined,
+        source: formData.source || undefined,
+        message: formData.message?.trim() || undefined,
+        course: courseName,
+        courseId,
+        website: formData.website,
+        formStartedAt,
+        captchaToken: captchaToken || "captcha-disabled-on-client",
+        idempotencyKey,
       });
 
-      try {
-        const existing =
-          typeof window !== "undefined" ? window.localStorage.getItem("forup_leads") : null;
-        const parsed: Lead[] = existing ? JSON.parse(existing) : [];
-        const updated = [...parsed, newLead];
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("forup_leads", JSON.stringify(updated));
-        }
-      } catch (error) {
-        console.error("Erro ao salvar o lead localmente", error);
-      }
-
       toast.success("Interesse registrado com sucesso! Entraremos em contato em breve.");
-      setFormData({ name: "", email: "", phone: "", source: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", source: "", message: "", website: "" });
+      resetProtectionFields();
       setSubmitted(true);
     } catch (error) {
       console.error("Erro ao enviar lead para o backend", error);
+      resetProtectionFields();
       toast.error("Não foi possível enviar seu interesse agora. Tente novamente em instantes.");
     } finally {
       setSubmitting(false);
@@ -130,6 +124,19 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
       </h3>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+          <Label htmlFor="website">Website</Label>
+          <Input
+            id="website"
+            name="website"
+            type="text"
+            value={formData.website}
+            onChange={(e) => updateField("website", e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         {effectiveFields.name && (
           <div>
             <Label htmlFor="name" className="text-foreground">
@@ -221,6 +228,10 @@ const CourseForm = ({ courseName, fields }: CourseFormProps) => {
               </SelectContent>
             </Select>
           </div>
+        )}
+
+        {captchaSiteKey && (
+          <TurnstileCaptcha key={formStartedAt} siteKey={captchaSiteKey} onTokenChange={updateCaptchaToken} />
         )}
 
         <div className="space-y-3">

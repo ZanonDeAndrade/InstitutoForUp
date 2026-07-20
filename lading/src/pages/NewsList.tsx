@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CourseLayout from "@/components/CourseLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,19 +12,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { newsApi } from "@/services/newsApi";
+import { adminNewsApi } from "@/services/adminNewsApi";
 import { News } from "@/types/news";
 import { toast } from "sonner";
+import AdminLogoutButton from "@/components/AdminLogoutButton";
+import { useAdminSession } from "@/lib/adminSessionContext";
+import { ADMIN_PERMISSIONS, hasAdminPermission } from "@/lib/adminPermissions";
 
 const NewsList = () => {
+  const adminUser = useAdminSession();
+  const canPublishNews = hasAdminPermission(adminUser, ADMIN_PERMISSIONS.PUBLISH_NEWS);
   const [items, setItems] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loadNews = async () => {
+  const loadNews = useCallback(async () => {
+    if (!canPublishNews) {
+      setLoading(false);
+      setItems([]);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await newsApi.list({ pageSize: 100 });
+      const response = await adminNewsApi.list({ pageSize: 100 });
       setItems(response.items);
     } catch (error) {
       console.error(error);
@@ -32,16 +43,21 @@ const NewsList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [canPublishNews]);
 
   useEffect(() => {
     loadNews();
-  }, []);
+  }, [loadNews]);
 
   const handleDelete = async (id: string) => {
+    if (!canPublishNews) {
+      toast.error("Acesso negado.");
+      return;
+    }
+
     setDeletingId(id);
     try {
-      await newsApi.delete(id);
+      await adminNewsApi.delete(id);
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast.success("Post excluído.");
     } catch (error) {
@@ -65,14 +81,19 @@ const NewsList = () => {
             </div>
             <div className="flex gap-3">
               <Button asChild variant="outline">
-                <Link to="/admin">Voltar ao painel</Link>
+                <Link to="/">Voltar ao painel</Link>
               </Button>
               <Button asChild variant="hero">
-                <Link to="/admin/news/create">Criar post</Link>
+                <Link to="/news/create">Criar post</Link>
               </Button>
+              <AdminLogoutButton />
             </div>
           </CardHeader>
           <CardContent>
+            {!canPublishNews && (
+              <p className="text-sm text-muted-foreground">Seu usuario nao possui permissao para gerenciar noticias.</p>
+            )}
+            {canPublishNews && (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-secondary/40">
@@ -98,12 +119,12 @@ const NewsList = () => {
                       <TableCell className="text-muted-foreground">{item.slug}</TableCell>
                       <TableCell className="text-right space-x-2 whitespace-nowrap">
                         <Button variant="secondary" size="sm" asChild>
-                          <Link to={`/news/${item.slug}`} target="_blank" rel="noreferrer">
+                          <Link to={`/news/${item.slug}`} target="_blank" rel="noopener noreferrer">
                             Ver
                           </Link>
                         </Button>
                         <Button variant="outline" size="sm" asChild>
-                          <Link to={`/admin/news/${item.slug}/edit`}>Editar</Link>
+                          <Link to={`/news/${item.slug}/edit`}>Editar</Link>
                         </Button>
                         <Button
                           variant="destructive"
@@ -121,6 +142,7 @@ const NewsList = () => {
                 {loading && <TableCaption>Carregando posts...</TableCaption>}
               </Table>
             </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -1,17 +1,11 @@
-import api from "./api";
-
-export interface CreateLeadDto {
-  name: string;
-  email: string;
-  phone?: string;
-  source?: string;
-  message?: string;
-  course?: string;
-}
+import publicApi from "./publicApi";
+import type { CreateLeadDto, Lead } from "@/types/lead";
 
 export const leadApi = {
-  async create(payload: CreateLeadDto) {
-    const { data } = await api.post("/leads", payload);
+  async create(payload: CreateLeadDto): Promise<Lead> {
+    const { data } = await publicApi.post<Lead>("/leads", payload, {
+      headers: { "Idempotency-Key": payload.idempotencyKey },
+    });
     return data;
   },
 };

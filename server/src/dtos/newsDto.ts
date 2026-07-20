@@ -9,7 +9,7 @@ interface BaseNewsDto {
   slug?: string;
 }
 
-export interface CreateNewsDto extends BaseNewsDto {}
+export type CreateNewsDto = BaseNewsDto;
 
 export interface UpdateNewsDto extends Partial<BaseNewsDto> {
   id?: string;
@@ -21,7 +21,6 @@ export interface NewsResponseDto {
   subtitle?: string | null;
   content: string;
   imageUrl?: string | null;
-  imageStorageKey?: string | null;
   publishedAt?: string | null;
   slug: string;
   status: NewsStatus;

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { News } from "@/types/news";
+import { getSafeImageUrl } from "@/lib/safeMarkdown";
 interface NewsCardProps {
   news: News;
 }
@@ -20,15 +21,16 @@ const buildExcerpt = (content: string, subtitle?: string | null) => {
 
 const NewsCard = ({ news }: NewsCardProps) => {
   const excerpt = buildExcerpt(news.content, news.subtitle);
+  const imageUrl = getSafeImageUrl(news.imageUrl);
   return (
     <Link
       to={`/news/${news.slug}`}
       className="group block h-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-card transition hover:-translate-y-1 hover:shadow-xl"
     >
-      {news.imageUrl && (
+      {imageUrl && (
         <div className="h-44 w-full overflow-hidden">
           <img
-            src={news.imageUrl}
+            src={imageUrl}
             alt={news.title}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             loading="lazy"

@@ -1,5 +1,6 @@
-/* eslint-disable no-console */
 const { PrismaClient } = require("@prisma/client");
+require("dotenv").config();
+const { createMaintenanceContext } = require("./lib/safeMaintenance");
 
 // Slug -> pillar mapping
 const PILLAR_BY_COURSE = {
@@ -17,6 +18,7 @@ const PILLAR_BY_COURSE = {
 const PILLAR_IDS = new Set(Object.values(PILLAR_BY_COURSE));
 
 const prisma = new PrismaClient();
+const context = createMaintenanceContext({ scriptName: "fix-course-pillars", destructive: false });
 
 const normalizePillar = (value) => {
   if (!value) return null;
@@ -25,10 +27,13 @@ const normalizePillar = (value) => {
 };
 
 async function main() {
+  context.printBanner();
+  context.assertValidDatabase();
+
   const courses = await prisma.course.findMany({ select: { id: true, pillar: true } });
   console.log(`[fix] found ${courses.length} courses`);
 
-  let updates = 0;
+  const plannedUpdates = [];
   for (const course of courses) {
     const mapped = PILLAR_BY_COURSE[course.id];
     const normalized = normalizePillar(course.pillar);
@@ -38,13 +43,28 @@ async function main() {
       continue;
     }
     if (pillar !== course.pillar) {
-      await prisma.course.update({ where: { id: course.id }, data: { pillar } });
-      updates += 1;
-      console.log(`[fix] updated ${course.id} -> ${pillar}`);
+      plannedUpdates.push({ id: course.id, from: course.pillar, to: pillar });
     }
   }
 
-  console.log(`[fix] done. Updated ${updates} courses.`);
+  console.log("[fix] plano", JSON.stringify({ updates: plannedUpdates.length, courses: plannedUpdates }));
+  if (context.dryRun) {
+    context.printExecutionHint();
+    context.logResult({ updated: 0, dryRun: true, planned: plannedUpdates.length });
+    return;
+  }
+
+  context.assertCanExecute();
+  const result = await prisma.$transaction(async (tx) => {
+    let updated = 0;
+    for (const item of plannedUpdates) {
+      await tx.course.update({ where: { id: item.id }, data: { pillar: item.to } });
+      updated += 1;
+    }
+    return { updated };
+  });
+
+  context.logResult({ ...result, planned: plannedUpdates.length });
 }
 
 main()

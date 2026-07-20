@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "./api";
+
 export type NewsStatus = "published" | "draft";
 
 export interface News {
@@ -6,7 +8,6 @@ export interface News {
   subtitle?: string | null;
   content: string;
   imageUrl?: string | null;
-  imageStorageKey?: string | null;
   publishedAt?: string | null;
   slug: string;
   status: NewsStatus;
@@ -14,12 +15,7 @@ export interface News {
   updatedAt?: string;
 }
 
-export interface PaginatedNewsResponse {
-  items: News[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
+export type PaginatedNewsResponse = PaginatedResponse<News>;
 
 export interface UpsertNewsDto {
   title: string;
@@ -29,3 +25,5 @@ export interface UpsertNewsDto {
   imageFile?: File | null;
   imageUrl?: string | null;
 }
+
+export type NewsFormValues = UpsertNewsDto;

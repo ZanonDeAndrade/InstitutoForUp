@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { News, UpsertNewsDto } from "@/types/news";
+import { News, NewsFormValues } from "@/types/news";
+import { getSafeImageUrl } from "@/lib/safeMarkdown";
 
 interface NewsFormProps {
   initial?: News | null;
   submitting?: boolean;
   submitLabel?: string;
-  onSubmit: (payload: UpsertNewsDto) => Promise<void>;
+  onSubmit: (payload: NewsFormValues) => Promise<void>;
 }
 
 const slugify = (value: string) =>
@@ -29,7 +30,7 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar post", onSubmit }
   const [content, setContent] = useState(initial?.content ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [autoSlug, setAutoSlug] = useState(!initial?.slug);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initial?.imageUrl ?? null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(getSafeImageUrl(initial?.imageUrl));
 
   useEffect(() => {
     setTitle(initial?.title ?? "");
@@ -38,8 +39,16 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar post", onSubmit }
     setContent(initial?.content ?? "");
     setImageFile(null);
     setAutoSlug(!initial?.slug);
-    setPreviewUrl(initial?.imageUrl ?? null);
-  }, [initial?.id, initial?.slug, initial?.publishedAt, initial?.title, initial?.content, initial?.subtitle]);
+    setPreviewUrl(getSafeImageUrl(initial?.imageUrl));
+  }, [
+    initial?.id,
+    initial?.slug,
+    initial?.publishedAt,
+    initial?.title,
+    initial?.content,
+    initial?.subtitle,
+    initial?.imageUrl,
+  ]);
 
   useEffect(() => {
     if (autoSlug && title) {
@@ -75,7 +84,7 @@ const NewsForm = ({ initial, submitting, submitLabel = "Salvar post", onSubmit }
       return;
     }
 
-    const payload: UpsertNewsDto = {
+    const payload: NewsFormValues = {
       title: title.trim(),
       subtitle: subtitle.trim() || undefined,
       content: content.trim(),

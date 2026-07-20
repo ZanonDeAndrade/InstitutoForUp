@@ -48,9 +48,9 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
       },
       plugins,
     );
-    const viewportRef = React.useRef<HTMLDivElement | null>(null);
-    const carouselRef = React.useCallback(
-      (node: HTMLDivElement | null) => {
+    const viewportRef = React.useRef<HTMLElement | null>(null);
+    const carouselRef = React.useCallback<ReturnType<typeof useEmblaCarousel>[0]>(
+      (node) => {
         viewportRef.current = node;
         emblaRef(node);
       },

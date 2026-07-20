@@ -1,12 +1,12 @@
 import { google } from "googleapis";
+import { env } from "../config/env";
+import { logger } from "../utils/logger";
 
-const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
-const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, "\n");
-const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
-const defaultSheetName = (process.env.GOOGLE_SHEETS_LEADS_SHEET_NAME || "Leads").trim() || "Leads";
+const clientEmail = env.GOOGLE_SHEETS_CLIENT_EMAIL;
+const privateKey = env.GOOGLE_SHEETS_PRIVATE_KEY;
+const spreadsheetId = env.GOOGLE_SHEETS_SPREADSHEET_ID;
+const defaultSheetName = env.GOOGLE_SHEETS_LEADS_SHEET_NAME;
 const createdSheets = new Set<string>();
-
-const hasRequiredEnv = () => !!(clientEmail && privateKey && spreadsheetId);
 
 export interface LeadRowInput {
   name: string;
@@ -17,21 +17,14 @@ export interface LeadRowInput {
   course?: string | null;
 }
 
-const auth = hasRequiredEnv()
-  ? new google.auth.JWT({
-      email: clientEmail,
-      key: privateKey,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    })
-  : null;
+const auth = new google.auth.JWT({
+  email: clientEmail,
+  key: privateKey,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
 
 export const googleSheetsClient = {
   async appendLeadRow(input: LeadRowInput) {
-    if (!auth || !hasRequiredEnv()) {
-      console.warn("[sheets] skipped append (missing credentials)");
-      return;
-    }
-
     const sheets = google.sheets({ version: "v4", auth });
     const targetSheet = sanitizeSheetName(input.course);
 
@@ -99,11 +92,12 @@ async function ensureHeaderRow(sheets: ReturnType<typeof google.sheets>, title: 
       range: `${title}!A1:G1`,
     });
 
-    const hasData = !!current.data.values && current.data.values.length > 0 && current.data.values[0].length > 0;
+    const firstRow = current.data.values?.[0];
+    const hasData = Array.isArray(firstRow) && firstRow.length > 0;
     if (hasData) return;
   } catch (error) {
     // Ignora e tenta escrever cabeçalho
-    console.warn("[sheets] header check failed, attempting to write header", error);
+    logger.warn("sheets.header_check_failed", { error });
   }
 
   const header = [["Data cadastro", "Nome", "Email", "Telefone", "Origem", "Mensagem", "Curso"]];

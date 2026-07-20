@@ -5,20 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import CriteriosValores from "./pages/CriteriosValores";
-import PerformandoLiderancas from "./pages/PerformandoLiderancas";
-import JovensLideres from "./pages/JovensLideres";
-import CafeCultural from "./pages/CafeCultural";
 import NotFound from "./pages/NotFound";
-import AdminPanel from "./pages/AdminPanel";
 import DynamicCourse from "./pages/DynamicCourse";
 import NewsPage from "./pages/NewsPage";
 import NewsDetails from "./pages/NewsDetails";
-import NewsList from "./pages/NewsList";
-import NewsCreate from "./pages/NewsCreate";
-import NewsEdit from "./pages/NewsEdit";
-import AdminLogin from "./pages/AdminLogin";
-import RequireAdmin from "./components/RequireAdmin";
 
 const queryClient = new QueryClient();
 
@@ -30,47 +20,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/criterios-valores" element={<CriteriosValores />} />
-          <Route path="/performando-liderancas" element={<PerformandoLiderancas />} />
-          <Route path="/jovens-lideres" element={<JovensLideres />} />
+          <Route path="/criterios-valores" element={<Navigate to="/curso/criterios-valores" replace />} />
+          <Route path="/performando-liderancas" element={<Navigate to="/curso/performando-liderancas" replace />} />
+          <Route path="/jovens-lideres" element={<Navigate to="/curso/jovens-lideres" replace />} />
           <Route path="/valores-humanos" element={<Navigate to="/curso/valores-humanos" replace />} />
-          <Route path="/cafe-cultural" element={<CafeCultural />} />
+          <Route path="/cafe-cultural" element={<Navigate to="/curso/cafe-cultural" replace />} />
           <Route path="/curso/:courseId" element={<DynamicCourse />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:slug" element={<NewsDetails />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin/news"
-            element={
-              <RequireAdmin>
-                <NewsList />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/news/create"
-            element={
-              <RequireAdmin>
-                <NewsCreate />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/news/:slug/edit"
-            element={
-              <RequireAdmin>
-                <NewsEdit />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <RequireAdmin>
-                <AdminPanel />
-              </RequireAdmin>
-            }
-          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

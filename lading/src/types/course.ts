@@ -1,4 +1,5 @@
 import { PillarId } from "@/constants/pillars";
+import type { CourseContent } from "./courseContent";
 
 export interface CourseFieldsConfig {
   name: boolean;
@@ -21,6 +22,7 @@ export interface Course {
   pillar?: PillarId;
   fields?: CourseFieldsConfig;
   images?: CourseImage[];
+  content?: CourseContent | null;
 }
 
 export interface UpsertCourseDto {
@@ -29,4 +31,7 @@ export interface UpsertCourseDto {
   description?: string;
   pillar: PillarId;
   fields?: CourseFieldsConfig;
+  content?: CourseContent;
 }
+
+export type CourseFormValues = UpsertCourseDto;

@@ -1,17 +1,18 @@
-import { PrismaClient } from "@prisma/client";
-import { deleteStoredObject, getSignedUrl } from "../config/storage";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { deleteStoredObject } from "../config/storage";
 import { StoredFile } from "../config/storage";
+import { env } from "../config/env";
+import { hasStorageBackedImageReference, isSafePublicImageId } from "./publicImageService";
 import { PILLAR_BY_COURSE, PILLAR_IDS, PillarId } from "../constants/pillars";
 
 const prisma = new PrismaClient();
-
-type UploadedFile = Express.Multer.File & { key?: string };
 
 export interface UpsertCoursePayload {
   id: string;
   name: string;
   description?: string;
   fields?: unknown;
+  content?: Prisma.InputJsonValue;
   pillar?: PillarId;
 }
 
@@ -19,7 +20,7 @@ const parseFields = (fields: unknown) => {
   if (typeof fields === "string") {
     try {
       return JSON.parse(fields);
-    } catch (_err) {
+    } catch {
       return null;
     }
   }
@@ -35,10 +36,24 @@ const normalizeDescription = (description?: string | null) => {
 };
 
 export class CourseService {
-  private proxyUrl(storageKey?: string | null) {
-    if (!storageKey) return undefined;
-    const base = process.env.PUBLIC_BASE_URL ?? "http://localhost:4000";
-    return `${base.replace(/\/$/, "")}/api/images/${encodeURIComponent(storageKey)}`;
+  private proxyUrl(imageId?: string | null) {
+    if (!imageId || !isSafePublicImageId(imageId)) return undefined;
+    const base = env.PUBLIC_BASE_URL;
+    return `${base.replace(/\/$/, "")}/api/images/course/${encodeURIComponent(imageId)}`;
+  }
+
+  private imageUrlFor(imageId: string, storageKey?: string | null, legacyUrl?: string | null) {
+    if (!hasStorageBackedImageReference(storageKey, legacyUrl, "courses")) return legacyUrl ?? "";
+    return this.proxyUrl(imageId) ?? "";
+  }
+
+  private publicImageDto(img: { id: string; url: string; storageKey?: string | null; courseId: string; createdAt: Date }) {
+    return {
+      id: img.id,
+      courseId: img.courseId,
+      createdAt: img.createdAt,
+      url: this.imageUrlFor(img.id, img.storageKey, img.url),
+    };
   }
 
   async list() {
@@ -46,7 +61,6 @@ export class CourseService {
       include: { images: true },
       orderBy: { name: "asc" },
     });
-    console.log("[svc] list courses", courses.length);
     const persistPromises: Promise<unknown>[] = [];
     const coursesWithSigned = await Promise.all(
       courses.map(async (course) => ({
@@ -54,12 +68,7 @@ export class CourseService {
         description: normalizeDescription(course.description),
         fields: parseFields(course.fields),
         pillar: await this.resolveAndPersistPillar(course.id, course.pillar, persistPromises),
-        images: await Promise.all(
-          course.images.map(async (img) => ({
-            ...img,
-            url: this.proxyUrl(img.storageKey ?? img.url ?? "") ?? (await getSignedUrl(img.storageKey ?? img.url ?? "")),
-          })),
-        ),
+        images: course.images.map((img) => this.publicImageDto(img)),
       })),
     );
     if (persistPromises.length) {
@@ -73,15 +82,9 @@ export class CourseService {
       where: { id },
       include: { images: true },
     });
-    console.log("[svc] getById", { id, found: !!course });
     if (!course) return null;
     const pillar = await this.resolveAndPersistPillar(id, course.pillar);
-    const images = await Promise.all(
-      course.images.map(async (img) => ({
-        ...img,
-        url: this.proxyUrl(img.storageKey ?? img.url ?? "") ?? (await getSignedUrl(img.storageKey ?? img.url ?? "")),
-      })),
-    );
+    const images = course.images.map((img) => this.publicImageDto(img));
     return {
       ...course,
       description: normalizeDescription(course.description),
@@ -92,7 +95,6 @@ export class CourseService {
   }
 
   async upsert(payload: UpsertCoursePayload) {
-    console.log("[svc] upsert", payload.id);
     const existing = await prisma.course.findUnique({ where: { id: payload.id } });
     const pillar = this.resolvePillar(payload.id, payload.pillar ?? existing?.pillar);
 
@@ -104,12 +106,14 @@ export class CourseService {
         description: payload.description,
         pillar,
         fields: payload.fields ? JSON.stringify(payload.fields) : null,
+        content: payload.content,
       },
       update: {
         name: payload.name,
         description: payload.description,
         pillar,
         fields: payload.fields ? JSON.stringify(payload.fields) : null,
+        ...(payload.content !== undefined ? { content: payload.content } : {}),
       },
       include: { images: true },
     });
@@ -133,7 +137,7 @@ export class CourseService {
       ),
     );
 
-    return created;
+    return created.map((img) => this.publicImageDto(img));
   }
 
   async deleteImage(courseId: string, imageId: string) {
@@ -158,7 +162,6 @@ export class CourseService {
       prisma.course.delete({ where: { id: courseId } }),
     ]);
     await Promise.all(course.images.map((img) => img.storageKey && deleteStoredObject(img.storageKey)));
-    console.log("[svc] course deleted", courseId);
   }
 
   private async resolveAndPersistPillar(

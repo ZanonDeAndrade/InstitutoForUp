@@ -23,7 +23,7 @@ const JovensLideres = () => {
 
           {/* Form */}
           <div className="animate-slide-up mt-10">
-            <CourseForm courseName="Jovens Líderes" />
+            <CourseForm courseId="jovens-lideres" courseName="Jovens Líderes" />
           </div>
         </div>
       </div>

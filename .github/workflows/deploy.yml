@@ -1,0 +1,121 @@
+name: Deploy Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment protected by GitHub Environments.
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      ref:
+        description: Git ref or SHA to validate before deployment.
+        required: true
+        default: main
+      run_migration_preflight:
+        description: Validate Prisma migration status before packaging.
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-preflight-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: deploy-preflight-${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    env:
+      NODE_ENV: production
+      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
+      CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      STORAGE_DRIVER: ${{ vars.STORAGE_DRIVER }}
+      UPLOADS_DIR: uploads
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_BUCKET: ${{ vars.SUPABASE_BUCKET }}
+      GOOGLE_SHEETS_CLIENT_EMAIL: ${{ secrets.GOOGLE_SHEETS_CLIENT_EMAIL }}
+      GOOGLE_SHEETS_PRIVATE_KEY: ${{ secrets.GOOGLE_SHEETS_PRIVATE_KEY }}
+      GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
+      ADMIN_TOKEN_SECRET: ${{ secrets.ADMIN_TOKEN_SECRET }}
+      RATE_LIMIT_REDIS_URL: ${{ secrets.RATE_LIMIT_REDIS_URL }}
+      CAPTCHA_PROVIDER: ${{ vars.CAPTCHA_PROVIDER }}
+      CAPTCHA_SECRET_KEY: ${{ secrets.CAPTCHA_SECRET_KEY }}
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Validate and build frontend artifacts
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+          npm run build:all
+
+      - name: Setup Node.js for backend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Validate backend and Prisma
+        working-directory: server
+        run: |
+          npm run prisma:validate
+          npx prisma generate --schema prisma/schema.prisma
+          npm run typecheck
+          npm run build
+          npm test
+
+      - name: Check Prisma migration status
+        if: ${{ inputs.run_migration_preflight }}
+        working-directory: server
+        run: npx prisma migrate status --schema prisma/schema.prisma
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: forup-${{ inputs.environment }}-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/**
+            dist-admin/**
+            server/dist/**
+            server/prisma/**
+            !server/prisma/*.db
+            !server/prisma/*.sqlite
+            !server/prisma/*.sqlite3
+
+      - name: Stop before real deployment
+        run: |
+          echo "Preflight completed for ${{ inputs.environment }}."
+          echo "No production or staging deployment is executed by this workflow."
+          echo "Add provider-specific deployment commands only after environment protection, secrets, backup and rollback procedures are approved."
