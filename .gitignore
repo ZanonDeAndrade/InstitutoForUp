@@ -72,10 +72,10 @@ output/
 .nuxt/
 
 # Local uploads and runtime storage
-uploads
-uploads/
-uploads-test
-uploads-test/
+/uploads
+/uploads/
+/uploads-test
+/uploads-test/
 server/uploads
 server/uploads/
 server/uploads-test
