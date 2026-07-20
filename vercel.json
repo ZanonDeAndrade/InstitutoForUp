@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:admin",
+  "outputDirectory": "dist-admin",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://iforup.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

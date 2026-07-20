@@ -1,0 +1,15 @@
+.gcloudignore
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+uploads/
+uploads-test/
+prisma/*.db
+prisma/*.sqlite
+prisma/*.sqlite3
+npm-debug.log*
+coverage/
